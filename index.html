@@ -1,0 +1,2069 @@
+<title>Ads Studio</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+<style>
+  /* Layout: translucent sidebar rail + single scrolling content column, iPadOS-style.
+     Everything derives from the tokens below. */
+  :root {
+    /* Apple system palette, light */
+    --ground: #f2f2f7;          /* systemGroupedBackground */
+    --surface: #ffffff;
+    --surface-2: #fbfbfd;
+    --rail: rgba(246, 246, 248, 0.72);
+    --label: #1d1d1f;
+    --label-2: #6e6e73;
+    --label-3: #a1a1a6;
+    --hairline: rgba(60, 60, 67, 0.14);
+    --hairline-strong: rgba(60, 60, 67, 0.26);
+    --fill: rgba(118, 118, 128, 0.12);
+    --fill-2: rgba(118, 118, 128, 0.08);
+    --blue: #0071e3;
+    --blue-soft: rgba(0, 113, 227, 0.1);
+    --green: #248a3d;
+    --green-soft: rgba(36, 138, 61, 0.1);
+    --orange: #c93400;
+    --orange-soft: rgba(201, 52, 0, 0.1);
+    --red: #d70015;
+    --red-soft: rgba(215, 0, 21, 0.1);
+    --purple: #6e3ad6;
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.04), 0 8px 24px rgba(0, 0, 0, 0.05);
+    --shadow-pop: 0 12px 48px rgba(0, 0, 0, 0.18);
+
+    /* Type */
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", Inter, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+
+    /* Apple's continuous-ish radii */
+    --r-sm: 8px;
+    --r-md: 12px;
+    --r-lg: 18px;
+    --r-xl: 26px;
+    --ease: cubic-bezier(0.32, 0.72, 0, 1);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #000000;
+      --surface: #1c1c1e;
+      --surface-2: #2c2c2e;
+      --rail: rgba(28, 28, 30, 0.72);
+      --label: #f5f5f7;
+      --label-2: #98989d;
+      --label-3: #6e6e73;
+      --hairline: rgba(84, 84, 88, 0.42);
+      --hairline-strong: rgba(84, 84, 88, 0.7);
+      --fill: rgba(120, 120, 128, 0.24);
+      --fill-2: rgba(120, 120, 128, 0.16);
+      --blue: #0a84ff;
+      --blue-soft: rgba(10, 132, 255, 0.18);
+      --green: #30d158;
+      --green-soft: rgba(48, 209, 88, 0.18);
+      --orange: #ff9f0a;
+      --orange-soft: rgba(255, 159, 10, 0.18);
+      --red: #ff453a;
+      --red-soft: rgba(255, 69, 58, 0.18);
+      --purple: #bf5af2;
+      --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+      --shadow-pop: 0 12px 48px rgba(0, 0, 0, 0.6);
+      color-scheme: dark;
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --ground: #000000;
+    --surface: #1c1c1e;
+    --surface-2: #2c2c2e;
+    --rail: rgba(28, 28, 30, 0.72);
+    --label: #f5f5f7;
+    --label-2: #98989d;
+    --label-3: #6e6e73;
+    --hairline: rgba(84, 84, 88, 0.42);
+    --hairline-strong: rgba(84, 84, 88, 0.7);
+    --fill: rgba(120, 120, 128, 0.24);
+    --fill-2: rgba(120, 120, 128, 0.16);
+    --blue: #0a84ff;
+    --blue-soft: rgba(10, 132, 255, 0.18);
+    --green: #30d158;
+    --green-soft: rgba(48, 209, 88, 0.18);
+    --orange: #ff9f0a;
+    --orange-soft: rgba(255, 159, 10, 0.18);
+    --red: #ff453a;
+    --red-soft: rgba(255, 69, 58, 0.18);
+    --purple: #bf5af2;
+    --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --shadow-pop: 0 12px 48px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--ground);
+    color: var(--label);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.45;
+    -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4 { margin: 0; text-wrap: balance; letter-spacing: -0.022em; font-weight: 600; }
+  h1 { font-size: 30px; line-height: 1.15; }
+  h2 { font-size: 21px; }
+  h3 { font-size: 17px; }
+  p { margin: 0; }
+  button { font: inherit; letter-spacing: inherit; color: inherit; }
+  :focus-visible { outline: 3px solid var(--blue); outline-offset: 2px; border-radius: 6px; }
+
+  .tnum { font-variant-numeric: tabular-nums; }
+
+  /* ───────────────────────── shell ───────────────────────── */
+
+  .shell { display: flex; min-height: 100vh; }
+
+  .rail {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    align-self: flex-start;
+    height: calc(100vh - env(safe-area-inset-top, 0px));
+    width: 252px;
+    flex: 0 0 252px;
+    background: var(--rail);
+    backdrop-filter: saturate(180%) blur(28px);
+    -webkit-backdrop-filter: saturate(180%) blur(28px);
+    border-right: 1px solid var(--hairline);
+    padding: 20px 12px 16px max(12px, env(safe-area-inset-left, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    overflow-y: auto;
+  }
+
+  .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
+  .brand-mark {
+    width: 30px; height: 30px; border-radius: 9px; flex: none;
+    background: linear-gradient(160deg, #0a84ff, #0040dd 70%);
+    display: grid; place-items: center;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.35);
+  }
+  .brand-mark svg { width: 17px; height: 17px; }
+  .brand-name { font-weight: 600; font-size: 15px; letter-spacing: -0.02em; }
+  .brand-sub { font-size: 11px; color: var(--label-2); letter-spacing: 0; }
+
+  .acct {
+    margin: 0 4px; padding: 9px 11px; border-radius: var(--r-md);
+    background: var(--fill-2); border: 1px solid var(--hairline);
+    display: flex; align-items: center; gap: 9px; text-align: left; width: calc(100% - 8px);
+    cursor: pointer; transition: background .18s var(--ease);
+  }
+  .acct:hover { background: var(--fill); }
+  .acct-dot { width: 26px; height: 26px; border-radius: 50%; flex: none; background: linear-gradient(140deg,#ff9f0a,#ff375f); }
+  .acct-name { font-size: 13px; font-weight: 550; }
+  .acct-id { font-size: 11px; color: var(--label-2); }
+
+  nav { display: flex; flex-direction: column; gap: 2px; }
+  .nav-label {
+    font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+    color: var(--label-3); padding: 10px 12px 4px;
+  }
+  .nav-item {
+    display: flex; align-items: center; gap: 11px;
+    padding: 8px 12px; border-radius: 10px;
+    background: none; border: 0; cursor: pointer; text-align: left;
+    font-size: 14px; font-weight: 450; color: var(--label);
+    transition: background .15s var(--ease);
+  }
+  .nav-item:hover { background: var(--fill-2); }
+  .nav-item[aria-current="page"] { background: var(--blue); color: #fff; font-weight: 550; }
+  .nav-item[aria-current="page"] .nav-ico { opacity: 1; }
+  .nav-ico { width: 19px; height: 19px; flex: none; opacity: .62; }
+  .nav-badge {
+    margin-left: auto; min-width: 20px; height: 20px; padding: 0 6px;
+    border-radius: 10px; background: var(--red); color: #fff;
+    font-size: 11px; font-weight: 600; display: grid; place-items: center;
+  }
+  .nav-item[aria-current="page"] .nav-badge { background: rgba(255,255,255,.26); }
+
+  .rail-foot { margin-top: auto; display: flex; flex-direction: column; gap: 10px; padding: 0 8px; }
+
+  .jargon {
+    display: flex; align-items: center; gap: 10px; padding: 10px 11px;
+    border-radius: var(--r-md); background: var(--fill-2); border: 1px solid var(--hairline);
+    font-size: 12.5px; color: var(--label-2); cursor: pointer; text-align: left;
+  }
+  .jargon b { color: var(--label); font-weight: 550; font-size: 13px; display: block; letter-spacing: -0.01em; }
+  .jargon > span:first-child { min-width: 0; }
+
+  /* iOS switch. The knob is a real element: Chrome will not paint ::after on an <input>. */
+  .sw { position: absolute; opacity: 0; width: 0; height: 0; margin: 0; pointer-events: none; }
+  .sw-track {
+    display: block; flex: none; cursor: pointer; position: relative;
+    width: 42px; height: 26px; border-radius: 13px; background: var(--fill);
+    transition: background .22s var(--ease);
+  }
+  .sw-track::before {
+    content: ""; position: absolute; top: 2px; left: 2px;
+    width: 22px; height: 22px; border-radius: 50%; background: #fff;
+    box-shadow: 0 2px 5px rgba(0,0,0,.18);
+    transition: transform .26s var(--ease);
+  }
+  .sw:checked + .sw-track { background: var(--green); }
+  .sw:checked + .sw-track::before { transform: translateX(16px); }
+  .sw:focus-visible + .sw-track { outline: 3px solid var(--blue); outline-offset: 2px; }
+  .sw-sm + .sw-track { width: 36px; height: 22px; border-radius: 11px; }
+  .sw-sm + .sw-track::before { width: 18px; height: 18px; }
+  .sw-sm:checked + .sw-track::before { transform: translateX(14px); }
+
+  /* ───────────────────────── main ───────────────────────── */
+
+  main { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; }
+
+  .topbar {
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 10;
+    background: var(--rail);
+    backdrop-filter: saturate(180%) blur(28px);
+    -webkit-backdrop-filter: saturate(180%) blur(28px);
+    border-bottom: 1px solid var(--hairline);
+    display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+    padding: 11px max(20px, env(safe-area-inset-right, 0px)) 11px max(20px, env(safe-area-inset-left, 0px));
+  }
+  body::before {
+    content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px);
+    background: var(--rail); z-index: 11;
+    backdrop-filter: saturate(180%) blur(28px);
+    -webkit-backdrop-filter: saturate(180%) blur(28px);
+  }
+  .topbar h2 { font-size: 17px; }
+  .topbar-spacer { margin-left: auto; }
+
+  /* segmented control */
+  .seg { display: inline-flex; background: var(--fill-2); border-radius: 9px; padding: 2px; gap: 2px; }
+  .seg button {
+    border: 0; background: none; cursor: pointer; padding: 5px 13px; border-radius: 7px;
+    font-size: 13px; font-weight: 500; color: var(--label-2);
+    transition: background .18s var(--ease), color .18s var(--ease);
+  }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--label); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+  .btn {
+    border: 0; border-radius: 980px; cursor: pointer;
+    padding: 8px 17px; font-size: 14px; font-weight: 550;
+    background: var(--blue); color: #fff;
+    transition: transform .14s var(--ease), filter .14s var(--ease);
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:active { transform: scale(.97); }
+  .btn-ghost { background: var(--fill); color: var(--label); }
+  .btn-plain { background: none; color: var(--blue); padding: 6px 4px; font-weight: 500; }
+  .btn-lg { padding: 12px 26px; font-size: 16px; }
+  .btn:disabled { opacity: .4; cursor: default; }
+
+  .page {
+    padding: 26px max(20px, env(safe-area-inset-right, 0px)) 64px max(20px, env(safe-area-inset-left, 0px));
+    max-width: 1180px; width: 100%;
+  }
+  .page[hidden] { display: none !important; }
+
+  .stack { display: flex; flex-direction: column; gap: 26px; }
+  .section-head { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 11px; }
+  .section-head p { font-size: 13.5px; color: var(--label-2); }
+
+  .card {
+    background: var(--surface); border-radius: var(--r-lg);
+    border: 1px solid var(--hairline); box-shadow: var(--shadow-card);
+  }
+  .card-pad { padding: 20px; }
+
+  /* ── hero spend ── */
+  .hero { display: grid; grid-template-columns: minmax(0,1.15fr) minmax(0,1fr); gap: 0; overflow: hidden; }
+  .hero-main { padding: 24px; display: flex; flex-direction: column; gap: 16px; }
+  .hero-side {
+    padding: 24px; background: var(--surface-2); border-left: 1px solid var(--hairline);
+    display: flex; flex-direction: column; gap: 14px; min-width: 0;
+  }
+  .eyebrow { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .07em; color: var(--label-2); }
+  .big-money { font-size: 46px; font-weight: 650; letter-spacing: -0.03em; line-height: 1; }
+  .big-money span { display: block; font-size: 17px; font-weight: 500; color: var(--label-2); letter-spacing: -0.01em; margin-top: 4px; }
+
+  .pace { display: flex; flex-direction: column; gap: 7px; }
+  .pace-track { height: 10px; border-radius: 5px; background: var(--fill); overflow: hidden; display: flex; }
+  .pace-fill { background: var(--blue); border-radius: 5px; transition: width .6s var(--ease); }
+  .pace-legend { display: flex; justify-content: space-between; font-size: 12.5px; color: var(--label-2); }
+
+  /* ── KPI tiles ── */
+  /* always 4 or 2 across, never 3 with an orphan on the second row */
+  .kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+  @media (max-width: 1150px) { .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 460px) { .kpis { grid-template-columns: 1fr; } }
+  .kpi { padding: 16px 17px 12px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+  .kpi-label { font-size: 12.5px; color: var(--label-2); font-weight: 500; display: flex; align-items: center; gap: 5px; }
+  .kpi-val { font-size: 27px; font-weight: 620; letter-spacing: -0.028em; line-height: 1.1; }
+  .kpi-delta { font-size: 12.5px; font-weight: 550; display: flex; align-items: center; gap: 4px; }
+  /* colour says whether the move is good news, the arrow says which way it moved */
+  .good { color: var(--green); } .bad { color: var(--red); } .flat { color: var(--label-2); }
+  .kpi-spark { margin-top: 6px; height: 34px; }
+  .kpi-spark svg { display: block; width: 100%; height: 34px; overflow: visible; }
+
+  .legend { display: flex; gap: 18px; margin-bottom: 14px; }
+  .legend-key { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--label-2); }
+  .legend-key i { width: 11px; height: 11px; border-radius: 3px; display: block; }
+  .chart-box svg { display: block; width: 100%; height: auto; }
+  .chart-box text { font-family: var(--sans); font-variant-numeric: tabular-nums; }
+
+  .hint {
+    width: 17px; height: 17px; border-radius: 50%; flex: none;
+    background: var(--fill); color: var(--label-2);
+    font-size: 10px; font-weight: 700; display: grid; place-items: center;
+    cursor: pointer; border: 0; padding: 0;
+  }
+  .hint:hover, .hint[aria-expanded="true"] { background: var(--blue); color: #fff; }
+  .kpi { position: relative; }
+  .hint-pop {
+    position: absolute; z-index: 5; left: 14px; right: 14px; top: 38px;
+    background: var(--surface-2); border: 1px solid var(--hairline-strong);
+    border-radius: var(--r-md); box-shadow: var(--shadow-pop);
+    padding: 11px 13px; font-size: 12.5px; line-height: 1.5; color: var(--label-2);
+  }
+
+  /* ── attention list ── */
+  .fixes { display: flex; flex-direction: column; }
+  .fix {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 17px 20px; border-top: 1px solid var(--hairline);
+  }
+  .fix:first-child { border-top: 0; }
+  .fix-ico { width: 34px; height: 34px; border-radius: 10px; flex: none; display: grid; place-items: center; }
+  .fix-ico svg { width: 18px; height: 18px; }
+  .sev-red { background: var(--red-soft); color: var(--red); }
+  .sev-orange { background: var(--orange-soft); color: var(--orange); }
+  .sev-blue { background: var(--blue-soft); color: var(--blue); }
+  .sev-green { background: var(--green-soft); color: var(--green); }
+  .fix-body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .fix-title { font-size: 15px; font-weight: 550; }
+  .fix-why { font-size: 13.5px; color: var(--label-2); }
+  .fix-worth { font-size: 12.5px; font-weight: 600; color: var(--green); }
+  .fix-act { display: flex; gap: 8px; align-items: center; flex: none; padding-top: 2px; }
+  @media (max-width: 620px) {
+    .fix { flex-wrap: wrap; }
+    .fix-act { flex: 1 0 100%; margin-left: 48px; padding-top: 6px; }
+  }
+  @media (max-width: 440px) {
+    .fix-act { margin-left: 0; }
+    .fix-act .btn { flex: 1; }
+  }
+
+  .done-note { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--green); font-weight: 500; }
+
+  /* ── inset grouped list (campaigns) ── */
+  .rows { display: flex; flex-direction: column; }
+  .row {
+    display: grid; align-items: center; gap: 14px;
+    grid-template-columns: 44px minmax(150px,2.3fr) 118px 100px 78px repeat(3, minmax(62px, .76fr)) 28px;
+    padding: 14px 18px; border-top: 1px solid var(--hairline);
+    transition: background .15s var(--ease);
+  }
+  .row:first-child { border-top: 0; }
+  .row-head {
+    font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .055em;
+    color: var(--label-3); padding: 11px 18px; background: var(--surface-2);
+    border-radius: var(--r-lg) var(--r-lg) 0 0;
+  }
+  .row:hover:not(.row-head) { background: var(--fill-2); }
+  .row.paused .row-name, .row.paused .row-num { opacity: .45; }
+  .row-name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .row-name b { font-weight: 550; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .row-name small { font-size: 12px; color: var(--label-2); }
+  .row-num { text-align: right; font-size: 14px; font-variant-numeric: tabular-nums; }
+  .row-num small { display: block; font-size: 11.5px; color: var(--label-2); }
+  .row-spark { min-width: 0; height: 26px; display: flex; align-items: center; }
+  .row-spark svg { height: 26px; width: 100%; }
+  .right { text-align: right; }
+  .chev { color: var(--label-3); background: none; border: 0; cursor: pointer; padding: 4px; }
+  .chev svg { width: 15px; height: 15px; display: block; }
+
+  .budget-edit {
+    width: 100%; max-width: 104px; border: 1px solid transparent; background: var(--fill-2);
+    border-radius: 8px; padding: 5px 8px; font-size: 14px; font-variant-numeric: tabular-nums;
+    color: var(--label); text-align: right;
+  }
+  .budget-edit:hover { border-color: var(--hairline-strong); }
+  .budget-edit:focus { background: var(--surface); border-color: var(--blue); outline: none; }
+
+  .pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 3px 9px; border-radius: 980px; font-size: 11.5px; font-weight: 600; white-space: nowrap;
+  }
+  .pill-green { background: var(--green-soft); color: var(--green); }
+  .pill-orange { background: var(--orange-soft); color: var(--orange); }
+  .pill-red { background: var(--red-soft); color: var(--red); }
+  .pill-grey { background: var(--fill); color: var(--label-2); }
+  .pill-blue { background: var(--blue-soft); color: var(--blue); }
+
+  /* ── builder ── */
+  .builder { display: grid; grid-template-columns: minmax(0, 1fr) 372px; gap: 22px; align-items: start; }
+  .steps { display: flex; flex-direction: column; gap: 16px; }
+  .step { padding: 22px; }
+  .step-top { display: flex; align-items: center; gap: 12px; margin-bottom: 4px; }
+  .step-n {
+    width: 25px; height: 25px; border-radius: 50%; flex: none; display: grid; place-items: center;
+    background: var(--label); color: var(--surface); font-size: 12.5px; font-weight: 650;
+  }
+  .step-q { font-size: 17px; font-weight: 600; letter-spacing: -0.02em; }
+  .step-help { font-size: 13.5px; color: var(--label-2); margin: 2px 0 15px 37px; }
+  .step-body { margin-left: 37px; }
+  @media (max-width: 560px) { .step-help, .step-body { margin-left: 0; } }
+
+  .field {
+    width: 100%; border: 1px solid var(--hairline-strong); background: var(--surface);
+    border-radius: var(--r-md); padding: 11px 13px; font: inherit; color: var(--label);
+    transition: border-color .15s var(--ease), box-shadow .15s var(--ease);
+  }
+  .field:focus { outline: none; border-color: var(--blue); box-shadow: 0 0 0 4px var(--blue-soft); }
+  textarea.field { resize: vertical; min-height: 68px; line-height: 1.5; }
+  label.lab { display: block; font-size: 12.5px; font-weight: 600; color: var(--label-2); margin-bottom: 6px; }
+
+  .choices { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+  .choice {
+    text-align: left; padding: 14px; border-radius: var(--r-md); cursor: pointer;
+    background: var(--surface); border: 1.5px solid var(--hairline-strong);
+    display: flex; flex-direction: column; gap: 3px;
+    transition: border-color .16s var(--ease), background .16s var(--ease), transform .16s var(--ease);
+  }
+  .choice:hover { transform: translateY(-1px); }
+  .choice[aria-pressed="true"] { border-color: var(--blue); background: var(--blue-soft); }
+  .choice b { font-size: 14.5px; font-weight: 600; }
+  .choice small { font-size: 12.5px; color: var(--label-2); line-height: 1.4; }
+
+  .slider-wrap { display: flex; flex-direction: column; gap: 10px; }
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none; width: 100%; height: 28px; background: none; margin: 0;
+  }
+  input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px; border-radius: 3px; background: var(--fill);
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 26px; height: 26px; border-radius: 50%; background: #fff;
+    box-shadow: 0 1px 1px rgba(0,0,0,.14), 0 4px 10px rgba(0,0,0,.18); border: .5px solid rgba(0,0,0,.08);
+    margin-top: -10px;
+  }
+  input[type="range"]::-moz-range-track { height: 6px; border-radius: 3px; background: var(--fill); }
+  input[type="range"]::-moz-range-thumb {
+    width: 24px; height: 24px; border-radius: 50%; background: #fff; border: .5px solid rgba(0,0,0,.1);
+    box-shadow: 0 2px 8px rgba(0,0,0,.2);
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px;
+    padding: 6px 7px 6px 12px; border-radius: 980px;
+    background: var(--fill-2); border: 1px solid var(--hairline);
+    font-size: 13.5px; cursor: default;
+  }
+  .chip b { font-weight: 500; }
+  .chip-x { border: 0; background: var(--fill); color: var(--label-2); border-radius: 50%; width: 19px; height: 19px; cursor: pointer; display: grid; place-items: center; font-size: 13px; line-height: 1; padding: 0; }
+  .chip-x:hover { background: var(--red); color: #fff; }
+  .chip-add {
+    padding: 6px 13px; border-radius: 980px; border: 1px dashed var(--hairline-strong);
+    background: none; color: var(--blue); font-size: 13.5px; cursor: pointer; font-weight: 500;
+  }
+  .chip-add:hover { background: var(--blue-soft); }
+
+  /* preview pane */
+  .preview { position: sticky; top: calc(76px + env(safe-area-inset-top, 0px)); display: flex; flex-direction: column; gap: 14px; }
+  .serp {
+    background: var(--surface); border-radius: var(--r-lg); border: 1px solid var(--hairline);
+    overflow: hidden; box-shadow: var(--shadow-card);
+  }
+  .serp-chrome {
+    display: flex; align-items: center; gap: 7px; padding: 11px 14px;
+    border-bottom: 1px solid var(--hairline); background: var(--surface-2);
+  }
+  .serp-dot { width: 9px; height: 9px; border-radius: 50%; }
+  .serp-url {
+    margin-left: 6px; flex: 1; background: var(--fill-2); border-radius: 980px;
+    padding: 3px 11px; font-size: 11.5px; color: var(--label-2); overflow: hidden;
+    text-overflow: ellipsis; white-space: nowrap;
+  }
+  .serp-body { padding: 17px 18px 20px; }
+  .ad-label { font-size: 12.5px; font-weight: 700; color: var(--label); margin-bottom: 2px; }
+  .ad-url { font-size: 12.5px; color: var(--label-2); }
+  .ad-head {
+    font-size: 19px; line-height: 1.3; color: #1a0dab; margin: 3px 0 4px;
+    letter-spacing: -0.01em; font-weight: 400;
+  }
+  :root[data-theme="dark"] .ad-head { color: #8ab4f8; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ad-head { color: #8ab4f8; } }
+  .ad-desc { font-size: 13.5px; color: var(--label-2); line-height: 1.5; }
+  .ad-callouts { font-size: 13px; color: var(--label-2); margin-top: 5px; line-height: 1.5; }
+  .ad-sitelinks {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 3px 22px;
+    margin-top: 11px; font-size: 13.5px;
+  }
+  .ad-sitelinks span { color: #1a0dab; text-decoration: underline; text-underline-offset: 2px; cursor: pointer; }
+  :root[data-theme="dark"] .ad-sitelinks span { color: #8ab4f8; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ad-sitelinks span { color: #8ab4f8; } }
+  @media (max-width: 420px) { .ad-sitelinks { grid-template-columns: 1fr; } }
+
+  .forecast { padding: 18px; display: flex; flex-direction: column; gap: 13px; }
+  .forecast-row { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+  .forecast-row span { font-size: 13.5px; color: var(--label-2); }
+  .forecast-row b { font-size: 16px; font-weight: 620; font-variant-numeric: tabular-nums; }
+  .forecast-note { font-size: 12px; color: var(--label-3); line-height: 1.45; }
+
+  /* strength meter */
+  .strength { display: flex; flex-direction: column; gap: 8px; }
+  .strength-bars { display: flex; gap: 4px; }
+  .strength-bars i { height: 5px; flex: 1; border-radius: 3px; background: var(--fill); transition: background .3s var(--ease); }
+  .strength-bars i.on-poor { background: var(--red); }
+  .strength-bars i.on-avg { background: var(--orange); }
+  .strength-bars i.on-good { background: var(--blue); }
+  .strength-bars i.on-exc { background: var(--green); }
+
+  .counter { font-size: 11.5px; color: var(--label-3); font-variant-numeric: tabular-nums; }
+  .counter.over { color: var(--red); font-weight: 600; }
+
+  .asset-line { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; }
+  .asset-line .field { flex: 1; padding: 8px 11px; font-size: 14px; }
+
+  /* keyword table */
+  .ktable { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .ktable th {
+    text-align: left; font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .055em;
+    color: var(--label-3); padding: 11px 14px; background: var(--surface-2); white-space: nowrap;
+  }
+  .ktable th:first-child { border-radius: var(--r-lg) 0 0 0; }
+  .ktable th:last-child { border-radius: 0 var(--r-lg) 0 0; }
+  .ktable td { padding: 12px 14px; border-top: 1px solid var(--hairline); vertical-align: middle; }
+  .ktable tbody tr:hover { background: var(--fill-2); }
+  .ktable .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  th.sortable { cursor: pointer; user-select: none; }
+  th.sortable:hover { color: var(--label); }
+  .th-in { display: inline-flex; align-items: center; gap: 4px; }
+  .ktable .num .th-in { flex-direction: row-reverse; }
+  .sort-caret { font-style: normal; font-size: 8px; opacity: 0; transition: opacity .15s var(--ease); }
+  th.sortable:hover .sort-caret { opacity: .45; }
+  .sort-caret.on { opacity: 1; color: var(--blue); }
+  .kw-term { font-weight: 500; }
+  .kw-match { font-size: 11.5px; color: var(--label-2); }
+  .scroll-x { overflow-x: auto; border-radius: var(--r-lg); }
+
+  .health { display: inline-flex; align-items: center; gap: 8px; }
+  .health-ring { width: 30px; height: 30px; flex: none; }
+  .health-ring svg { display: block; transform: rotate(-90deg); }
+  .health-txt { font-size: 12.5px; color: var(--label-2); line-height: 1.25; }
+  .health-txt b { display: block; font-size: 13px; color: var(--label); font-weight: 550; }
+
+  /* detail sheet */
+  .scrim {
+    position: fixed; inset: 0; background: rgba(0,0,0,.34); z-index: 40;
+    backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+    animation: fade .22s var(--ease);
+  }
+  .sheet {
+    position: fixed; z-index: 41; background: var(--surface);
+    box-shadow: var(--shadow-pop);
+    top: env(safe-area-inset-top, 0px); right: 0; bottom: 0;
+    width: min(468px, 100%); border-radius: var(--r-xl) 0 0 0;
+    padding: 22px max(22px, env(safe-area-inset-right, 0px)) max(24px, env(safe-area-inset-bottom, 0px)) 22px;
+    overflow-y: auto; display: flex; flex-direction: column; gap: 18px;
+    animation: slide .34s var(--ease);
+  }
+  @keyframes fade { from { opacity: 0 } }
+  @keyframes slide { from { transform: translateX(30px); opacity: 0 } }
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation-duration: .001s !important; transition-duration: .001s !important; }
+  }
+  .sheet-head { display: flex; align-items: flex-start; gap: 12px; }
+  .sheet-head h2 { flex: 1; min-width: 0; }
+  .x-btn {
+    width: 30px; height: 30px; border-radius: 50%; border: 0; flex: none; cursor: pointer;
+    background: var(--fill); color: var(--label-2); display: grid; place-items: center; font-size: 15px;
+  }
+  .x-btn:hover { background: var(--hairline-strong); }
+
+  .deflist { display: grid; grid-template-columns: auto 1fr; gap: 10px 18px; font-size: 14px; }
+  .deflist dt { color: var(--label-2); }
+  .deflist dd { margin: 0; text-align: right; font-variant-numeric: tabular-nums; font-weight: 500; }
+
+  .toast {
+    position: fixed; z-index: 60; left: 50%; transform: translateX(-50%);
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+    background: rgba(28,28,30,.92); color: #fff; border-radius: 980px;
+    padding: 11px 22px; font-size: 14px; font-weight: 500;
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    box-shadow: var(--shadow-pop); animation: pop .32s var(--ease);
+    display: flex; align-items: center; gap: 9px;
+    max-width: calc(100% - 32px);
+  }
+  .toast-undo {
+    border: 0; background: none; cursor: pointer; padding: 2px 2px 2px 10px;
+    margin-left: 3px; border-left: 1px solid rgba(255,255,255,.22);
+    color: #6cb4ff; font-weight: 600; font-size: 14px;
+  }
+  .toast-undo:hover { color: #9ccbff; }
+  @keyframes pop { from { transform: translate(-50%, 14px); opacity: 0 } }
+
+  .note {
+    font-size: 12.5px; color: var(--label-2); line-height: 1.55;
+    background: var(--fill-2); border: 1px solid var(--hairline);
+    border-radius: var(--r-md); padding: 13px 15px;
+  }
+  .note b { color: var(--label); font-weight: 600; }
+
+  .empty { padding: 44px 24px; text-align: center; display: flex; flex-direction: column; gap: 8px; align-items: center; }
+  .empty h3 { font-size: 17px; }
+  .empty p { font-size: 13.5px; color: var(--label-2); max-width: 42ch; }
+
+  /* mobile */
+  .menu-btn { display: none; }
+  .rail-scrim { display: none; }
+  @media (max-width: 760px) {
+    .rail-scrim:not([hidden]) {
+      display: block; position: fixed; inset: 0; z-index: 45;
+      background: rgba(0, 0, 0, 0.34);
+      backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
+      animation: fade .22s var(--ease);
+    }
+  }
+  @media (max-width: 1120px) {
+    .row, .row-head { grid-template-columns: 40px minmax(0,1fr) 118px 92px 24px; }
+    .row .hide-sm { display: none; }
+  }
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; }
+    .hero-side { border-left: 0; border-top: 1px solid var(--hairline); }
+    .builder { grid-template-columns: 1fr; }
+    .preview { position: static; }
+  }
+  @media (max-width: 620px) {
+    .row, .row-head { grid-template-columns: 40px minmax(0,1fr) 92px 24px; }
+    .row .hide-xs { display: none; }
+  }
+  @media (max-width: 760px) {
+    .rail {
+      position: fixed; z-index: 50; left: 0; height: 100vh; top: 0;
+      transform: translateX(-100%); transition: transform .32s var(--ease);
+      padding-top: calc(16px + env(safe-area-inset-top, 0px));
+    }
+    .rail.open { transform: none; }
+    .menu-btn { display: grid; place-items: center; width: 32px; height: 32px; border-radius: 9px; background: var(--fill); border: 0; cursor: pointer; }
+    .menu-btn svg { width: 17px; height: 17px; }
+  }
+  @media (max-width: 620px) {
+    .topbar { gap: 9px; padding-block: 9px; }
+    .topbar h2 { font-size: 16px; }
+    .topbar-spacer { flex-basis: 100%; height: 0; margin: 0; }
+    .seg button { padding: 5px 10px; font-size: 12.5px; }
+    .btn { padding: 7px 14px; font-size: 13.5px; }
+    h1 { font-size: 25px; }
+    .big-money { font-size: 38px; }
+    .page { padding-top: 20px; }
+  }
+  /* keep the range control and the button on one row rather than stacking a
+     three-deep sticky toolbar over a phone screen */
+  @media (max-width: 440px) {
+    .topbar { gap: 7px; }
+    .seg button { padding: 5px 8px; font-size: 12px; }
+    .topbar .btn { padding: 7px 11px; font-size: 12.5px; }
+  }
+</style>
+
+<div class="rail-scrim" id="railScrim" hidden></div>
+<div class="shell">
+  <aside class="rail" id="rail">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 18V9M10 18V4M16 18v-6M22 18H2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">Ads Studio</div>
+        <div class="brand-sub">Google Ads, in plain English</div>
+      </div>
+    </div>
+
+    <button class="acct" onclick="toast('One account in this demo')">
+      <div class="acct-dot"></div>
+      <div>
+        <div class="acct-name">Harbor &amp; Pine Dental</div>
+        <div class="acct-id tnum">482-119-7730</div>
+      </div>
+    </button>
+
+    <nav id="nav"></nav>
+
+    <div class="rail-foot">
+      <label class="jargon" for="jargonSw">
+        <span>
+          <b>Google's wording</b>
+          Avg. CPC, Impr., Conv.
+        </span>
+        <input type="checkbox" class="sw sw-sm" id="jargonSw"><span class="sw-track" style="margin-left:auto"></span>
+      </label>
+    </div>
+  </aside>
+
+  <main>
+    <header class="topbar">
+      <button class="menu-btn" id="menuBtn" aria-label="Show menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+      <h2 id="pageTitle">Today</h2>
+      <div class="topbar-spacer"></div>
+      <div class="seg" id="rangeSeg" role="group" aria-label="Date range"></div>
+      <button class="btn" onclick="go('build')">New campaign</button>
+    </header>
+
+    <!-- ══════════ TODAY ══════════ -->
+    <section class="page stack" id="page-today">
+      <div class="card hero">
+        <div class="hero-main">
+          <div class="eyebrow">Spent this month</div>
+          <div class="big-money tnum" id="heroSpend">$0</div>
+          <div class="pace">
+            <div class="pace-track"><div class="pace-fill" id="paceFill" style="width:0%"></div></div>
+            <div class="pace-legend">
+              <span id="paceLeft">—</span>
+              <span id="paceRight">—</span>
+            </div>
+          </div>
+          <p style="font-size:13.5px;color:var(--label-2)" id="paceWords">—</p>
+        </div>
+        <div class="hero-side">
+          <div class="eyebrow" id="heroSideLabel">What you got, last 30 days</div>
+          <div style="display:flex;gap:26px;flex-wrap:wrap">
+            <div>
+              <div class="big-money tnum" style="font-size:34px" id="heroLeads">0</div>
+              <div style="font-size:13px;color:var(--label-2)" data-plain="new patient calls &amp; forms" data-jargon="conversions">new patient calls &amp; forms</div>
+            </div>
+            <div>
+              <div class="big-money tnum" style="font-size:34px" id="heroCpl">$0</div>
+              <div style="font-size:13px;color:var(--label-2)" data-plain="each one cost you" data-jargon="cost / conv.">each one cost you</div>
+            </div>
+          </div>
+          <div class="note" id="heroVerdict">—</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-head">
+          <h2>Worth your 10 minutes</h2>
+          <p id="fixCount">—</p>
+        </div>
+        <div class="card fixes" id="fixList"></div>
+      </div>
+
+      <div>
+        <div class="section-head">
+          <h2>The four numbers</h2>
+          <p>Compared with the previous period of the same length.</p>
+        </div>
+        <div class="kpis" id="kpiGrid"></div>
+      </div>
+
+      <div>
+        <div class="section-head">
+          <h2>Day by day</h2>
+          <p>Bars are what you spent. The line is patients booked.</p>
+        </div>
+        <div class="card card-pad">
+          <div class="legend">
+            <span class="legend-key"><i style="background:var(--blue)"></i>Spent — left scale</span>
+            <span class="legend-key"><i style="background:var(--green);border-radius:1px;height:3px"></i>Patients — right scale</span>
+          </div>
+          <div class="chart-box" id="trendChart"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="section-head"><h2>Where the money went</h2></div>
+        <div class="card" id="todayCampaigns"></div>
+      </div>
+    </section>
+
+    <!-- ══════════ CAMPAIGNS ══════════ -->
+    <section class="page stack" id="page-campaigns" hidden>
+      <div class="note">
+        <b>Switches turn spending on and off.</b> Budgets save the moment you click away. Nothing here charges a real card; this is example data for Harbor &amp; Pine Dental.
+      </div>
+      <input class="field" id="campSearch" placeholder="Find a campaign" aria-label="Find a campaign" style="max-width:320px">
+      <div class="card" id="campaignList"></div>
+    </section>
+
+    <!-- ══════════ KEYWORDS ══════════ -->
+    <section class="page stack" id="page-keywords" hidden>
+      <p style="font-size:14px;color:var(--label-2);margin-top:-6px">Every search that showed one of your ads, biggest spender first.</p>
+      <div class="card scroll-x"><table class="ktable" id="kwTable"></table></div>
+      <div class="note">
+        <b>Ad health</b> is Google's Quality Score, 1 to 10. It blends three things: how often people click your ad, how closely the ad matches the search, and how well your landing page delivers. Low health means you pay more per click than a competitor for the same spot.
+      </div>
+    </section>
+
+    <!-- ══════════ ADS ══════════ -->
+    <section class="page stack" id="page-ads" hidden>
+      <div class="builder">
+        <div class="steps">
+          <div class="card step">
+            <div class="step-top"><div class="step-n">1</div><div class="step-q">Headlines</div></div>
+            <p class="step-help">Google mixes and matches these. Write at least 5; 30 characters each. Pin nothing and let it test.</p>
+            <div class="step-body" id="headlineList"></div>
+          </div>
+          <div class="card step">
+            <div class="step-top"><div class="step-n">2</div><div class="step-q">Descriptions</div></div>
+            <p class="step-help">Two to four of these, 90 characters each. Say what happens when someone clicks.</p>
+            <div class="step-body" id="descList"></div>
+          </div>
+          <div class="card step">
+            <div class="step-top"><div class="step-n">3</div><div class="step-q">What else shows under it</div></div>
+            <p class="step-help">Google calls these assets. They are free, they make the ad taller, and a taller ad gets clicked more. Sitelinks are extra links; callouts are short phrases with no link.</p>
+            <div class="step-body">
+              <label class="lab">Sitelinks</label>
+              <div id="siteLinkList"></div>
+              <div style="height:16px"></div>
+              <label class="lab">Callouts</label>
+              <div class="chips" id="calloutChips"></div>
+            </div>
+          </div>
+        </div>
+        <div class="preview">
+          <div class="serp">
+            <div class="serp-chrome">
+              <div class="serp-dot" style="background:#ff5f57"></div>
+              <div class="serp-dot" style="background:#febc2e"></div>
+              <div class="serp-dot" style="background:#28c840"></div>
+              <div class="serp-url">google.com/search?q=emergency+dentist+near+me</div>
+            </div>
+            <div class="serp-body">
+              <div class="ad-label">Sponsored</div>
+              <div class="ad-url">harborpinedental.com/emergency</div>
+              <div class="ad-head" id="prevHead">—</div>
+              <div class="ad-desc" id="prevDesc">—</div>
+              <div class="ad-callouts" id="prevCallouts"></div>
+              <div class="ad-sitelinks" id="prevSitelinks"></div>
+            </div>
+          </div>
+          <div class="card card-pad strength">
+            <div style="display:flex;justify-content:space-between;align-items:baseline">
+              <span class="eyebrow">Ad strength</span>
+              <b id="strengthWord" style="font-size:15px">—</b>
+            </div>
+            <div class="strength-bars" id="strengthBars"><i></i><i></i><i></i><i></i></div>
+            <p style="font-size:12.5px;color:var(--label-2)" id="strengthWhy">—</p>
+          </div>
+          <button class="btn btn-ghost" onclick="rollPreview()" style="width:100%">Shuffle the combination</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ BUILD ══════════ -->
+    <section class="page" id="page-build" hidden>
+      <div class="builder">
+        <div class="steps">
+          <div class="card step">
+            <div class="step-top"><div class="step-n">1</div><div class="step-q">What do you want more of?</div></div>
+            <p class="step-help">This picks the bidding strategy for you. Google calls these Maximize conversions, Maximize clicks and Target ROAS.</p>
+            <div class="step-body choices" id="goalChoices"></div>
+          </div>
+
+          <div class="card step">
+            <div class="step-top"><div class="step-n">2</div><div class="step-q">What are you advertising?</div></div>
+            <p class="step-help">One sentence. The keyword suggestions below come straight from it.</p>
+            <div class="step-body">
+              <input class="field" id="bWhat" value="Same-day emergency dental care in Portland, Maine" aria-label="What you are advertising">
+              <div style="height:14px"></div>
+              <label class="lab" for="bUrl">Where clicks land</label>
+              <input class="field" id="bUrl" value="harborpinedental.com/emergency" aria-label="Landing page">
+            </div>
+          </div>
+
+          <div class="card step">
+            <div class="step-top"><div class="step-n">3</div><div class="step-q">Which searches should trigger it?</div></div>
+            <p class="step-help">Added from your sentence. Remove anything that would waste money, and add your own.</p>
+            <div class="step-body">
+              <div class="chips" id="kwChips"></div>
+              <div style="height:12px"></div>
+              <div class="chips" id="negChips"></div>
+            </div>
+          </div>
+
+          <div class="card step">
+            <div class="step-top"><div class="step-n">4</div><div class="step-q">How much a day?</div></div>
+            <p class="step-help">Google bills up to this most days and can go over on busy ones, but never more than 30.4 × this in a month.</p>
+            <div class="step-body slider-wrap">
+              <div style="display:flex;align-items:baseline;gap:10px">
+                <span class="big-money tnum" id="bBudgetVal" style="font-size:38px">$45</span>
+                <span style="color:var(--label-2);font-size:14px">a day</span>
+                <span class="pill pill-grey tnum" id="bMonthly" style="margin-left:auto">$1,368 a month</span>
+              </div>
+              <input type="range" id="bBudget" min="10" max="250" step="5" value="45" aria-label="Daily budget">
+              <div class="pace-legend"><span>$10</span><span>$250</span></div>
+            </div>
+          </div>
+
+          <div class="card step">
+            <div class="step-top"><div class="step-n">5</div><div class="step-q">Who should see it?</div></div>
+            <p class="step-help">Tight radii beat wide ones for anything local.</p>
+            <div class="step-body">
+              <label class="lab" for="bGeo">Place</label>
+              <input class="field" id="bGeo" value="Portland, ME" aria-label="Location">
+              <div style="height:14px"></div>
+              <label class="lab" for="bRadius">How far out: <b class="tnum" id="bRadiusVal">12 miles</b></label>
+              <input type="range" id="bRadius" min="1" max="60" step="1" value="12" aria-label="Radius in miles">
+            </div>
+          </div>
+
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+            <button class="btn btn-lg" id="launchBtn">Launch campaign</button>
+            <span id="launchHint" style="font-size:13px;color:var(--label-2)">Adds it to your list here. Nothing reaches Google.</span>
+          </div>
+        </div>
+
+        <div class="preview">
+          <div class="serp">
+            <div class="serp-chrome">
+              <div class="serp-dot" style="background:#ff5f57"></div>
+              <div class="serp-dot" style="background:#febc2e"></div>
+              <div class="serp-dot" style="background:#28c840"></div>
+              <div class="serp-url" id="bSerpUrl">google.com/search?q=…</div>
+            </div>
+            <div class="serp-body">
+              <div class="ad-label">Sponsored</div>
+              <div class="ad-url" id="bPrevUrl">harborpinedental.com/emergency</div>
+              <div class="ad-head" id="bPrevHead">Same-Day Emergency Dentist</div>
+              <div class="ad-desc" id="bPrevDesc">Seen today in Portland. Call now and we will fit you in.</div>
+            </div>
+          </div>
+          <div class="card forecast">
+            <span class="eyebrow">What $45 a day buys</span>
+            <div class="forecast-row"><span data-plain="Clicks a month" data-jargon="Clicks">Clicks a month</span><b class="tnum" id="fcClicks">—</b></div>
+            <div class="forecast-row"><span data-plain="Cost per click" data-jargon="Avg. CPC">Cost per click</span><b class="tnum" id="fcCpc">—</b></div>
+            <div class="forecast-row"><span data-plain="New patients" data-jargon="Conversions">New patients</span><b class="tnum" id="fcLeads">—</b></div>
+            <div class="forecast-row"><span data-plain="Cost per patient" data-jargon="Cost / conv.">Cost per patient</span><b class="tnum" id="fcCpl">—</b></div>
+            <div class="forecast-row"><span data-plain="Share of these searches you'd win" data-jargon="Search impr. share">Share of these searches you'd win</span><b class="tnum" id="fcShare">—</b></div>
+            <p class="forecast-note" id="fcNote">—</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════ WORDS ══════════ -->
+    <section class="page stack" id="page-words" hidden>
+      <div class="section-head">
+        <h2>Google's words, translated</h2>
+        <p>The sidebar switch flips this whole app between the two columns.</p>
+      </div>
+      <div class="card scroll-x"><table class="ktable" id="glossTable"></table></div>
+    </section>
+  </main>
+</div>
+
+<script>
+/* ───────────────── example data (Harbor & Pine Dental, demo account) ───────────────── */
+
+const RANGES = [
+  { id: '7',  label: '7 days',  days: 7,  mult: 0.23 },
+  { id: '30', label: '30 days', days: 30, mult: 1 },
+  { id: '90', label: '90 days', days: 90, mult: 3.05 }
+];
+
+let state = {
+  range: '30',
+  jargon: false,
+  view: 'today',
+  dismissed: [],
+  campQuery: '',
+  kwSort: { key: 'spend', dir: -1 },
+  sheet: null
+};
+
+const campaigns = [
+  { id:'c1', name:'Emergency — Search', type:'Search', bid:'Maximize conversions',
+    budget:45, status:'on', flag:'budget',
+    spend:1284, clicks:412, impr:9840, leads:38, cpc:3.12, share:0.41,
+    trend:[18,22,19,26,31,28,34,37,33,41,44,46,43,48] },
+  { id:'c2', name:'Implants — Search', type:'Search', bid:'Target CPA $120',
+    budget:60, status:'on', flag:null,
+    spend:1702, clicks:286, impr:6210, leads:14, cpc:5.95, share:0.33,
+    trend:[52,49,55,58,54,61,57,63,60,58,62,59,64,61] },
+  { id:'c3', name:'Brand — Search', type:'Search', bid:'Maximize clicks',
+    budget:8, status:'on', flag:'cheap',
+    spend:171, clicks:390, impr:2440, leads:21, cpc:0.44, share:0.88,
+    trend:[5,6,5,7,6,6,7,5,6,7,6,6,7,6] },
+  { id:'c4', name:'Teeth Whitening — Search', type:'Search', bid:'Maximize clicks',
+    budget:25, status:'on', flag:'waste',
+    spend:618, clicks:301, impr:14200, leads:3, cpc:2.05, share:0.19,
+    trend:[24,21,23,19,22,20,24,21,19,23,20,22,21,20] },
+  { id:'c5', name:'Performance Max — Whole practice', type:'Performance Max', bid:'Maximize conversions',
+    budget:35, status:'off', flag:null,
+    spend:0, clicks:0, impr:0, leads:0, cpc:0, share:0,
+    trend:[0,0,0,0,0,0,0,0,0,0,0,0,0,0] }
+];
+
+let keywords = [
+  { term:'emergency dentist near me', match:'phrase', clicks:138, impr:1910, cpc:4.20, leads:17, qs:9, cmp:['High','Above average','Above average'] },
+  { term:'dentist open now',          match:'phrase', clicks:96,  impr:1480, cpc:3.85, leads:11, qs:8, cmp:['Above average','Above average','Average'] },
+  { term:'tooth pain relief',         match:'broad',  clicks:112, impr:4320, cpc:1.74, leads:2,  qs:4, cmp:['Below average','Below average','Above average'] },
+  { term:'dental implants portland',  match:'exact',  clicks:74,  impr:980,  cpc:6.40, leads:9,  qs:8, cmp:['Above average','Above average','Above average'] },
+  { term:'cheap teeth whitening',     match:'broad',  clicks:188, impr:9100, cpc:1.92, leads:1,  qs:3, cmp:['Below average','Below average','Below average'] },
+  { term:'harbor and pine dental',    match:'exact',  clicks:331, impr:2100, cpc:0.42, leads:19, qs:10, cmp:['High','Above average','Above average'] },
+  { term:'invisalign cost',           match:'phrase', clicks:58,  impr:2240, cpc:3.05, leads:4,  qs:6, cmp:['Average','Above average','Average'] },
+  { term:'free dental work',          match:'broad',  clicks:64,  impr:5600, cpc:1.10, leads:0,  qs:2, cmp:['Below average','Below average','Below average'] }
+];
+
+const FIXES = [
+  { id:'f1', sev:'red', ico:'alert',
+    title:'“cheap teeth whitening” has burned $361 for one patient',
+    why:'188 clicks, 1 booking. The people searching it are price shopping, not booking. Turning it off keeps the rest of that campaign running.',
+    worth:'Frees about $340 a month',
+    act:'Turn it off',
+    done:'Off. The budget goes back to the campaign.' },
+  { id:'f2', sev:'orange', ico:'wallet',
+    title:'Emergency — Search runs out of money by 1pm',
+    why:'You win 41% of the searches you could. The other 59% go to the practice down the street, and emergency searches peak after lunch.',
+    worth:'About 9 more patients a month',
+    act:'Raise to $68 a day',
+    done:'Budget is $68 a day. Give it two weeks before judging.' },
+  { id:'f3', sev:'orange', ico:'ban',
+    title:'“free” searches cost you $70 and booked nobody',
+    why:'64 clicks on “free dental work” and similar. One negative keyword blocks the whole family of them.',
+    worth:'Saves about $70 a month',
+    act:'Block “free”',
+    done:'Added as a negative keyword at the account level.' },
+  { id:'f4', sev:'blue', ico:'spark',
+    title:'Your emergency ad only has 3 headlines',
+    why:'Google needs at least 5 to test combinations. Accounts that hit 5 typically see a small lift in click rate for no extra spend.',
+    worth:'Free',
+    act:'Write them',
+    go:'ads',
+    done:'Opened the ad editor.' },
+  { id:'f5', sev:'green', ico:'check',
+    title:'Brand — Search is your best buy and you are starving it',
+    why:'21 patients at $8.14 each. It is capped at $8 a day and still wins 88% of searches, so a small raise is nearly free money.',
+    worth:'About 6 more patients a month',
+    act:'Raise to $14 a day',
+    done:'Budget is $14 a day.' }
+];
+
+const GLOSSARY = [
+  ['Times shown', 'Impr.', 'How many times your ad appeared on a results page.'],
+  ['Clicks', 'Clicks', 'Same word in both. How many people tapped through.'],
+  ['Click rate', 'CTR', 'Clicks divided by times shown. Above 6% is strong for local search.'],
+  ['Cost per click', 'Avg. CPC', 'What you actually paid per click, averaged.'],
+  ['New patients', 'Conversions', 'The action you told Google to count. Here: a call over 60 seconds or a booking form.'],
+  ['Cost per patient', 'Cost / conv.', 'Total spend divided by patients. The only number that decides whether ads pay.'],
+  ['Ad health', 'Quality Score', '1 to 10. Low health means you pay more than a rival for the same position.'],
+  ['Share of searches you win', 'Search impr. share', 'Of all the searches you could have shown up for, the share you did.'],
+  ['Running out by midday', 'Limited by budget', 'Your daily budget empties before the day does, so afternoon searches go to someone else.'],
+  ['Searches that wasted money', 'Search terms report', 'The real typed searches behind your keywords. Where negatives come from.'],
+  ['Blocked words', 'Negative keywords', 'Searches you never want to pay for. “free”, “jobs”, “cheap”, “diy”.'],
+  ['Let Google bid', 'Smart Bidding', 'You set the target, Google sets each bid. Needs about 30 conversions a month to work well.']
+];
+
+/* ───────────────── small helpers ───────────────── */
+
+const $ = s => document.querySelector(s);
+const el = (t, c, h) => { const n = document.createElement(t); if (c) n.className = c; if (h != null) n.innerHTML = h; return n; };
+const money = n => '$' + Math.round(n).toLocaleString('en-US');
+const money2 = n => '$' + n.toFixed(2);
+const pct = n => Math.round(n * 100) + '%';
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;' }[c]));
+
+function store(k, v) {
+  try { if (v === undefined) return JSON.parse(localStorage.getItem('ads.' + k)); localStorage.setItem('ads.' + k, JSON.stringify(v)); }
+  catch (e) { return null; }
+}
+
+let toastTimer = null;
+function toast(msg, undo) {
+  document.querySelectorAll('.toast').forEach(t => t.remove());
+  clearTimeout(toastTimer);
+  const t = el('div', 'toast', '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#30d158" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg><span>' + esc(msg) + '</span>');
+  if (undo) {
+    const b = el('button', 'toast-undo', 'Undo');
+    b.onclick = () => { clearTimeout(toastTimer); t.remove(); undo(); };
+    t.appendChild(b);
+  }
+  document.body.appendChild(t);
+  toastTimer = setTimeout(() => t.remove(), undo ? 7000 : 3200);
+}
+
+/* Everything the user can change is small enough to snapshot whole, which makes
+   Undo one line at each call site instead of a bespoke inverse per action. */
+function snapshot() {
+  return JSON.stringify({
+    c: campaigns.map(c => ({ id: c.id, budget: c.budget, status: c.status })),
+    k: keywords,
+    d: state.dismissed
+  });
+}
+function restore(snap) {
+  const o = JSON.parse(snap);
+  o.c.forEach(x => {
+    const c = campaigns.find(y => y.id === x.id);
+    if (c) { c.budget = x.budget; c.status = x.status; }
+  });
+  keywords = o.k;
+  state.dismissed = o.d;
+  store('dismissed', o.d);
+  renderAll();
+  if (state.view === 'keywords') renderKeywords();
+}
+
+const ICONS = {
+  alert: '<path d="M12 9v4M12 17h.01M10.3 3.9 2.4 17.3A1.9 1.9 0 0 0 4 20.2h16a1.9 1.9 0 0 0 1.6-2.9L13.7 3.9a1.9 1.9 0 0 0-3.4 0z"/>',
+  wallet: '<path d="M20 12V8H6a2 2 0 0 1 0-4h12v4M4 6v12a2 2 0 0 0 2 2h14v-4"/><path d="M18 12a2 2 0 0 0 0 4h4v-4z"/>',
+  ban: '<circle cx="12" cy="12" r="9"/><path d="M5.6 5.6l12.8 12.8"/>',
+  spark: '<path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>',
+  check: '<path d="M20 6L9 17l-5-5"/>',
+  today: '<rect x="3" y="4" width="18" height="17" rx="3"/><path d="M8 2v4M16 2v4M3 10h18"/>',
+  grid: '<rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><rect x="14" y="14" width="7" height="7" rx="2"/>',
+  search: '<circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/>',
+  pen: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+  chev: '<path d="M9 18l6-6-6-6"/>'
+};
+const svg = (name, w) => '<svg class="' + (w || '') + '" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">' + ICONS[name] + '</svg>';
+
+/* label swapping: every [data-plain]/[data-jargon] node follows the switch */
+function applyWording() {
+  document.querySelectorAll('[data-plain]').forEach(n => {
+    n.textContent = state.jargon ? n.dataset.jargon : n.dataset.plain;
+  });
+}
+function W(plain, jargon) {
+  return '<span data-plain="' + esc(plain) + '" data-jargon="' + esc(jargon) + '">' + esc(state.jargon ? jargon : plain) + '</span>';
+}
+
+function sparkline(series, color) {
+  const w = 120, h = 34, max = Math.max(...series, 1), min = Math.min(...series);
+  const span = (max - min) || 1;
+  const pts = series.map((v, i) => [
+    (i / (series.length - 1)) * w,
+    h - ((v - min) / span) * (h - 6) - 3
+  ]);
+  const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  const area = line + ' L' + w + ' ' + h + ' L0 ' + h + ' Z';
+  const last = pts[pts.length - 1];
+  const gid = 'g' + Math.random().toString(36).slice(2, 8);
+  return '<svg viewBox="0 0 ' + w + ' ' + h + '" preserveAspectRatio="none" aria-hidden="true">' +
+    '<defs><linearGradient id="' + gid + '" x1="0" y1="0" x2="0" y2="1">' +
+    '<stop offset="0" stop-color="' + color + '" stop-opacity=".28"/>' +
+    '<stop offset="1" stop-color="' + color + '" stop-opacity="0"/></linearGradient></defs>' +
+    '<path d="' + area + '" fill="url(#' + gid + ')"/>' +
+    '<path d="' + line + '" fill="none" stroke="' + color + '" stroke-width="1.8" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
+    '<circle cx="' + last[0].toFixed(1) + '" cy="' + last[1].toFixed(1) + '" r="2.6" fill="' + color + '"/></svg>';
+}
+
+function ring(score) {
+  const r = 12, c = 2 * Math.PI * r, on = (score / 10) * c;
+  const col = score >= 8 ? 'var(--green)' : score >= 6 ? 'var(--blue)' : score >= 4 ? 'var(--orange)' : 'var(--red)';
+  return '<div class="health-ring"><svg width="30" height="30" viewBox="0 0 30 30">' +
+    '<circle cx="15" cy="15" r="' + r + '" fill="none" stroke="var(--fill)" stroke-width="3.4"/>' +
+    '<circle cx="15" cy="15" r="' + r + '" fill="none" stroke="' + col + '" stroke-width="3.4" stroke-linecap="round" ' +
+    'stroke-dasharray="' + on.toFixed(1) + ' ' + c.toFixed(1) + '"/></svg></div>';
+}
+
+/* ───────────────── nav ───────────────── */
+
+const VIEWS = [
+  { id:'today',     title:'Today',             nav:'Today',          ico:'today',  group:'Watch' },
+  { id:'campaigns', title:'Campaigns',         nav:'Campaigns',      ico:'grid',   group:'Watch' },
+  { id:'keywords',  title:'What people typed', nav:'What people typed', ico:'search', group:'Watch' },
+  { id:'build',     title:'New campaign',      nav:'New campaign',   ico:'plus',   group:'Make' },
+  { id:'ads',       title:'Your ad',           nav:'Your ad',        ico:'pen',    group:'Make' },
+  { id:'words',     title:"Google's words",    nav:"Google's words", ico:'book',   group:'Learn' }
+];
+
+function renderNav() {
+  const nav = $('#nav'); nav.innerHTML = '';
+  let group = null;
+  VIEWS.forEach(v => {
+    if (v.group !== group) { group = v.group; nav.appendChild(el('div', 'nav-label', esc(group))); }
+    const b = el('button', 'nav-item', svg(v.ico, 'nav-ico') + '<span>' + esc(v.nav) + '</span>' +
+      (v.id === 'today' ? '<span class="nav-badge" id="navBadge">0</span>' : ''));
+    if (v.id === state.view) b.setAttribute('aria-current', 'page');
+    b.onclick = () => go(v.id);
+    nav.appendChild(b);
+  });
+  updateBadge();
+}
+
+function updateBadge() {
+  const n = FIXES.filter(f => !state.dismissed.includes(f.id)).length;
+  const b = $('#navBadge');
+  if (b) { b.textContent = n; b.hidden = n === 0; }
+}
+
+function setRail(open) {
+  $('#rail').classList.toggle('open', open);
+  $('#railScrim').hidden = !open;
+  $('#menuBtn').setAttribute('aria-expanded', String(open));
+}
+function closeHints() {
+  document.querySelectorAll('.hint-pop').forEach(p => { p.hidden = true; });
+  document.querySelectorAll('.hint').forEach(b => b.setAttribute('aria-expanded', 'false'));
+}
+
+function go(id) {
+  state.view = id;
+  VIEWS.forEach(v => { const p = $('#page-' + v.id); if (p) p.hidden = v.id !== id; });
+  $('#pageTitle').textContent = VIEWS.find(v => v.id === id).title;
+  setRail(false);
+  closeHints();
+  renderNav();
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  if (id === 'keywords') renderKeywords();
+  if (id === 'words') renderGlossary();
+  if (id === 'ads') renderAdEditor();
+}
+
+/* ───────────────── range control ───────────────── */
+
+function renderRange() {
+  const seg = $('#rangeSeg'); seg.innerHTML = '';
+  RANGES.forEach(r => {
+    const b = el('button', null, r.label);
+    b.setAttribute('aria-pressed', String(r.id === state.range));
+    b.onclick = () => { state.range = r.id; store('range', r.id); renderRange(); renderAll(); };
+    seg.appendChild(b);
+  });
+}
+
+const mult = () => RANGES.find(r => r.id === state.range).mult;
+const live = () => campaigns.filter(c => c.status === 'on');
+const totals = () => {
+  const m = mult();
+  return live().reduce((a, c) => ({
+    spend: a.spend + c.spend * m, clicks: a.clicks + c.clicks * m,
+    impr: a.impr + c.impr * m, leads: a.leads + c.leads * m
+  }), { spend:0, clicks:0, impr:0, leads:0 });
+};
+
+/* ───────────────── Today ───────────────── */
+
+function renderHero() {
+  const t = totals();
+  const dailyBudget = live().reduce((a, c) => a + c.budget, 0);
+  const cap = dailyBudget * 30.4;
+  const dayOfMonth = 19, daysInMonth = 30;
+  // Pacing is always month-to-date: it answers "will I blow the monthly cap",
+  // which the 7/30/90 control above has nothing to do with.
+  const monthSpend = live().reduce((a, c) => a + c.spend, 0) * (dayOfMonth / daysInMonth);
+
+  if (!live().length || cap <= 0) {
+    // nothing running: a percentage of a zero ceiling is not a number
+    $('#heroSpend').innerHTML = '$0 <span>nothing is running</span>';
+    $('#paceFill').style.width = '0%';
+    $('#paceLeft').textContent = 'Day ' + dayOfMonth + ' of ' + daysInMonth;
+    $('#paceRight').textContent = 'No campaigns on';
+    $('#paceWords').textContent = 'Every campaign is switched off, so you are not spending anything and not booking anyone. Turn one back on from Campaigns.';
+    $('#heroSideLabel').textContent = 'What you got, last ' + RANGES.find(r => r.id === state.range).label;
+    $('#heroLeads').textContent = '0';
+    $('#heroCpl').textContent = '—';
+    $('#heroVerdict').innerHTML = '<b>A new patient is worth about $780 to this practice over three years.</b> ' +
+      'While everything is paused those patients go to whoever is still bidding.';
+    return;
+  }
+
+  $('#heroSpend').innerHTML = money(monthSpend) + ' <span>of ' + money(cap) + ' you allowed</span>';
+  const p = Math.min(100, (monthSpend / cap) * 100);
+  $('#paceFill').style.width = p.toFixed(1) + '%';
+  $('#paceLeft').textContent = 'Day ' + dayOfMonth + ' of ' + daysInMonth;
+  $('#paceRight').textContent = money(monthSpend / dayOfMonth) + ' a day so far';
+  const projected = (monthSpend / dayOfMonth) * daysInMonth;
+  $('#paceWords').textContent = projected > cap * 0.98
+    ? 'At this rate you finish the month at ' + money(projected) + ', right at your ceiling.'
+    : 'At this rate you finish the month at ' + money(projected) + ', about ' + money(cap - projected) + ' under your ceiling.';
+
+  $('#heroSideLabel').textContent = 'What you got, last ' + RANGES.find(r => r.id === state.range).label;
+  const winLeads = sum(series.cur, 'leads'), winSpend = sum(series.cur, 'spend');
+  const cpl = winSpend / Math.max(winLeads, 1);
+  $('#heroLeads').textContent = Math.round(winLeads);
+  $('#heroCpl').textContent = money(cpl);
+  $('#heroVerdict').innerHTML = '<b>A new patient is worth about $780 to this practice over three years.</b> You are paying ' +
+    money(cpl) + '. Every patient ads bring in nets roughly ' + money(780 - cpl) + ', which is why the answer to “should I spend more” is usually yes until that gap closes.';
+}
+
+function renderKpis() {
+  const { prev, cur } = series;
+  // each tile: a value read off the current buckets, a per-bucket series for the
+  // sparkline, and a delta against the previous period of the same length
+  const tiles = [
+    { plain:'Times shown', jargon:'Impr.', col:'var(--blue)', upIsGood:true,
+      now: sum(cur, 'impr'), was: sum(prev, 'impr'),
+      pts: cur.map(d => d.impr), fmt: v => Math.round(v).toLocaleString(),
+      hint:'How often your ad appeared. On its own it means nothing; it matters only next to clicks.' },
+    { plain:'Clicks', jargon:'Clicks', col:'var(--blue)', upIsGood:true,
+      now: sum(cur, 'clicks'), was: sum(prev, 'clicks'),
+      pts: cur.map(d => d.clicks), fmt: v => Math.round(v).toLocaleString(),
+      hint:'People who tapped through to your site.' },
+    { plain:'Click rate', jargon:'CTR', col:'var(--green)', upIsGood:true,
+      now: sum(cur, 'clicks') / Math.max(sum(cur, 'impr'), 1),
+      was: sum(prev, 'clicks') / Math.max(sum(prev, 'impr'), 1),
+      pts: cur.map(d => d.clicks / Math.max(d.impr, 1)), fmt: v => (v * 100).toFixed(1) + '%',
+      hint:'Clicks ÷ times shown. Above 6% is strong for local search.' },
+    { plain:'Cost per click', jargon:'Avg. CPC', col:'var(--purple)', upIsGood:false,
+      now: sum(cur, 'spend') / Math.max(sum(cur, 'clicks'), 1),
+      was: sum(prev, 'spend') / Math.max(sum(prev, 'clicks'), 1),
+      pts: cur.map(d => d.spend / Math.max(d.clicks, 1)), fmt: money2,
+      hint:'What you actually paid, averaged. Falling is good.' }
+  ];
+
+  const g = $('#kpiGrid'); g.innerHTML = '';
+  tiles.forEach((k, i) => {
+    const d = k.was ? ((k.now - k.was) / k.was) * 100 : 0;
+    const up = d >= 0;
+    const cls = Math.abs(d) < 0.3 ? 'flat' : (up === k.upIsGood) ? 'good' : 'bad';
+    const arrow = up ? 'M12 19V5M5 12l7-7 7 7' : 'M12 5v14M19 12l-7 7-7-7';
+    const c = el('div', 'card kpi');
+    c.innerHTML =
+      '<div class="kpi-label">' + W(k.plain, k.jargon) +
+        '<button class="hint" aria-expanded="false" aria-label="What does this mean?">?</button></div>' +
+      '<div class="kpi-val tnum">' + k.fmt(k.now) + '</div>' +
+      '<div class="kpi-delta ' + cls + '"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="' + arrow + '"/></svg>' +
+        Math.abs(d).toFixed(1) + '%</div>' +
+      '<div class="kpi-spark">' + sparkline(k.pts, k.col) + '</div>' +
+      '<div class="hint-pop" hidden>' + esc(k.hint) + '</div>';
+    const hb = c.querySelector('.hint'), pop = c.querySelector('.hint-pop');
+    hb.onclick = e => {
+      e.stopPropagation();
+      const open = !pop.hidden;
+      document.querySelectorAll('.hint-pop').forEach(p => { p.hidden = true; });
+      document.querySelectorAll('.hint').forEach(b => b.setAttribute('aria-expanded', 'false'));
+      pop.hidden = open;
+      hb.setAttribute('aria-expanded', String(!open));
+    };
+    g.appendChild(c);
+  });
+  applyWording();
+}
+
+/* deterministic jitter so the chart is stable across re-renders */
+function wobble(i, seed) {
+  const x = Math.sin((i + 1) * 12.9898 + seed * 78.233) * 43758.5453;
+  return x - Math.floor(x);
+}
+
+/* Builds twice the window: the first half is the previous period, the second half
+   is the one on screen. Every number the Today page shows — bars, sparklines and
+   the percentage deltas — is read off these same buckets. */
+function buildSeries() {
+  const base = live().reduce((a, c) => ({
+    spend: a.spend + c.spend, clicks: a.clicks + c.clicks,
+    impr: a.impr + c.impr, leads: a.leads + c.leads
+  }), { spend: 0, clicks: 0, impr: 0, leads: 0 });
+
+  const weekly = state.range === '90';
+  const n = state.range === '7' ? 7 : weekly ? 13 : 30;
+  const bucketDays = weekly ? 7 : 1;
+  const total = n * 2;
+  const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+  const all = Array.from({ length: total }, (_, i) => {
+    const weekend = !weekly && (i % 7) >= 5 ? 0.55 : 1;  // dental searches drop at the weekend
+    const growth = 1 + (i - total / 2) * 0.0028;         // the account is slowly improving
+    const draw = (metric, seed, lo, span) =>
+      (base[metric] / 30) * bucketDays * weekend * growth * (lo + wobble(i, seed) * span);
+    return {
+      spend:  draw('spend', 1, 0.80, 0.40),
+      clicks: draw('clicks', 4, 0.80, 0.40),
+      impr:   draw('impr', 5, 0.82, 0.36),
+      leads:  draw('leads', 7, 0.58, 0.86)
+    };
+  });
+
+  const cur = all.slice(n);
+  cur.forEach((d, j) => {
+    d.label = weekly ? (j % 2 === 0 ? 'wk ' + (j + 1) : '')
+      : n === 7 ? dayNames[j]
+      : (j % 5 === 0 ? String(j + 1) : '');
+  });
+  return { prev: all.slice(0, n), cur, weekly, n };
+}
+
+let series = null;
+const sum = (rows, k) => rows.reduce((a, d) => a + d[k], 0);
+
+function renderTrend() {
+  const data = series.cur;
+  const W = 760, H = 250, L = 54, R = 46, T = 10, B = 28;
+  const pw = W - L - R, ph = H - T - B;
+  const maxSpend = Math.max(...data.map(d => d.spend), 1);
+  const maxLeads = Math.max(...data.map(d => d.leads), 1);
+  const stepSpend = Math.pow(10, Math.floor(Math.log10(maxSpend))) / 2;
+  const topSpend = Math.ceil(maxSpend / stepSpend) * stepSpend;
+  const topLeads = Math.max(2, Math.ceil(maxLeads));
+
+  const slot = pw / data.length;
+  const bw = Math.max(3, slot * 0.6);
+  const yS = v => T + ph - (v / topSpend) * ph;
+  const yL = v => T + ph - (v / topLeads) * ph;
+  const cx = i => L + slot * i + slot / 2;
+
+  let g = '';
+  for (let i = 0; i <= 4; i++) {
+    const v = (topSpend / 4) * i, y = yS(v);
+    g += '<line x1="' + L + '" y1="' + y.toFixed(1) + '" x2="' + (W - R) + '" y2="' + y.toFixed(1) +
+      '" stroke="var(--hairline)" stroke-width="1"/>' +
+      '<text x="' + (L - 9) + '" y="' + (y + 4).toFixed(1) + '" text-anchor="end" font-size="11" fill="var(--label-3)">$' +
+      Math.round(v) + '</text>' +
+      '<text x="' + (W - R + 9) + '" y="' + (yL((topLeads / 4) * i) + 4).toFixed(1) +
+      '" text-anchor="start" font-size="11" fill="var(--label-3)">' + Math.round((topLeads / 4) * i) + '</text>';
+  }
+
+  let bars = '', labels = '';
+  data.forEach((d, i) => {
+    const y = yS(d.spend), h = Math.max(1, T + ph - y);
+    bars += '<rect x="' + (cx(i) - bw / 2).toFixed(1) + '" y="' + y.toFixed(1) + '" width="' + bw.toFixed(1) +
+      '" height="' + h.toFixed(1) + '" rx="' + Math.min(3, bw / 2).toFixed(1) + '" fill="var(--blue)" opacity=".82"><title>' +
+      money(d.spend) + ' spent, ' + d.leads.toFixed(1) + ' patients</title></rect>';
+    if (d.label) labels += '<text x="' + cx(i).toFixed(1) + '" y="' + (H - 8) +
+      '" text-anchor="middle" font-size="11" fill="var(--label-3)">' + d.label + '</text>';
+  });
+
+  const line = data.map((d, i) => (i ? 'L' : 'M') + cx(i).toFixed(1) + ' ' + yL(d.leads).toFixed(1)).join(' ');
+  const dots = data.map((d, i) =>
+    '<circle cx="' + cx(i).toFixed(1) + '" cy="' + yL(d.leads).toFixed(1) + '" r="2.6" fill="var(--green)"/>').join('');
+
+  $('#trendChart').innerHTML =
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Daily spend as bars with patients booked as a line">' +
+    g + bars +
+    '<path d="' + line + '" fill="none" stroke="var(--green)" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>' +
+    dots + labels +
+    '</svg>';
+}
+
+function renderFixes() {
+  const list = $('#fixList'); list.innerHTML = '';
+  const open = FIXES.filter(f => !state.dismissed.includes(f.id));
+  $('#fixCount').textContent = open.length
+    ? open.length + ' thing' + (open.length > 1 ? 's' : '') + ' here are costing you money or leaving it on the table.'
+    : 'Nothing left. Check back after a week of data.';
+
+  if (!open.length) {
+    list.innerHTML = '<div class="empty"><h3>All clear</h3><p>You handled everything. New suggestions appear as the campaigns gather a week of fresh data.</p>' +
+      '<button class="btn btn-ghost" onclick="resetFixes()">Bring them back</button></div>';
+    updateBadge(); return;
+  }
+
+  open.forEach(f => {
+    const row = el('div', 'fix');
+    row.innerHTML =
+      '<div class="fix-ico sev-' + f.sev + '">' + svg(f.ico) + '</div>' +
+      '<div class="fix-body">' +
+        '<div class="fix-title">' + f.title + '</div>' +
+        '<div class="fix-why">' + esc(f.why) + '</div>' +
+        '<div class="fix-worth">' + esc(f.worth) + '</div>' +
+      '</div>' +
+      '<div class="fix-act"></div>';
+    const act = row.querySelector('.fix-act');
+    const b = el('button', 'btn', esc(f.act));
+    b.onclick = () => applyFix(f);
+    const skip = el('button', 'btn btn-plain', 'Not now');
+    skip.onclick = () => {
+      const snap = snapshot();
+      state.dismissed.push(f.id);
+      store('dismissed', state.dismissed);
+      toast('Hidden for now', () => restore(snap));
+      renderFixes();
+    };
+    act.append(b, skip);
+    list.appendChild(row);
+  });
+  updateBadge();
+}
+
+function applyFix(f) {
+  const snap = snapshot();
+  state.dismissed.push(f.id);
+  store('dismissed', state.dismissed);
+  if (f.id === 'f1') { keywords = keywords.filter(k => k.term !== 'cheap teeth whitening'); }
+  if (f.id === 'f2') { campaigns.find(c => c.id === 'c1').budget = 68; }
+  if (f.id === 'f3') { keywords = keywords.filter(k => k.term !== 'free dental work'); }
+  if (f.id === 'f5') { campaigns.find(c => c.id === 'c3').budget = 14; }
+  toast(f.done, () => restore(snap));
+  if (f.go) { renderAll(); go(f.go); return; }
+  renderAll();
+}
+
+function resetFixes() { state.dismissed = []; store('dismissed', []); renderAll(); }
+
+/* ───────────────── campaign rows ───────────────── */
+
+const FLAGS = {
+  budget: ['pill-orange', 'Out of money by 1pm'],
+  waste:  ['pill-red', 'Spending, not booking'],
+  cheap:  ['pill-green', 'Your best buy'],
+  off:    ['pill-grey', 'Paused']
+};
+const FLAGS_JARGON = {
+  budget: ['pill-orange', 'Limited by budget'],
+  waste:  ['pill-red', 'Low conv. rate'],
+  cheap:  ['pill-green', 'Low cost / conv.'],
+  off:    ['pill-grey', 'Paused']
+};
+
+function campaignRows(target, limit) {
+  const m = mult();
+  const host = $(target); host.innerHTML = '';
+  const head = el('div', 'row row-head');
+  head.innerHTML = '<span></span><span>Campaign</span><span class="hide-xs">Status</span><span class="right">' +
+    (state.jargon ? 'Budget / day' : 'A day') + '</span><span class="hide-sm">Trend</span><span class="right hide-sm">' +
+    (state.jargon ? 'Cost' : 'Spent') + '</span><span class="right hide-sm">' +
+    (state.jargon ? 'Conv.' : 'Patients') + '</span><span class="right hide-sm">' +
+    (state.jargon ? 'Cost / conv.' : 'Each') + '</span><span></span>';
+  host.appendChild(head);
+
+  const q = (state.campQuery || '').trim().toLowerCase();
+  const pool = (!limit && q)
+    ? campaigns.filter(c => (c.name + ' ' + c.type + ' ' + c.bid).toLowerCase().includes(q))
+    : campaigns;
+  const rows = limit ? pool.slice(0, limit) : pool;
+
+  if (!rows.length) {
+    host.innerHTML = '<div class="empty"><h3>Nothing matches “' + esc(q) + '”</h3>' +
+      '<p>Try part of the campaign name, or a bid strategy like “Target CPA”.</p></div>';
+    return;
+  }
+
+  rows.forEach(c => {
+    const flagKey = c.status === 'off' ? 'off' : c.flag;
+    const flag = flagKey ? (state.jargon ? FLAGS_JARGON : FLAGS)[flagKey] : null;
+    const r = el('div', 'row' + (c.status === 'off' ? ' paused' : ''));
+    r.innerHTML =
+      '<label style="display:grid;place-items:center"><input type="checkbox" class="sw sw-sm" ' +
+        (c.status === 'on' ? 'checked' : '') + ' aria-label="Run ' + esc(c.name) + '"><span class="sw-track"></span></label>' +
+      '<div class="row-name"><b>' + esc(c.name) + '</b><small>' + esc(c.type) + ' · ' + esc(c.bid) + '</small></div>' +
+      '<div class="hide-xs">' + (flag ? '<span class="pill ' + flag[0] + '">' + esc(flag[1]) + '</span>'
+                      : !c.spend ? '<span class="pill pill-grey">No data yet</span>'
+                      : '<span class="pill pill-blue">Healthy</span>') + '</div>' +
+      '<div class="right"><input class="budget-edit tnum" value="' + c.budget + '" inputmode="decimal" aria-label="Daily budget for ' + esc(c.name) + '"></div>' +
+      '<div class="hide-sm row-spark">' + (c.spend
+        ? sparkline(c.trend, c.flag === 'waste' ? 'var(--red)' : c.flag === 'cheap' ? 'var(--green)' : 'var(--blue)')
+        : '<span style="font-size:12px;color:var(--label-3)">no data</span>') + '</div>' +
+      '<div class="row-num hide-sm">' + money(c.spend * m) + '</div>' +
+      '<div class="row-num hide-sm">' + Math.round(c.leads * m) + '</div>' +
+      '<div class="row-num hide-sm">' + (c.leads ? money(c.spend / c.leads) : '—') + '</div>' +
+      '<button class="chev" aria-label="Open ' + esc(c.name) + '">' + svg('chev') + '</button>';
+
+    r.querySelector('.sw').onchange = e => {
+      const snap = snapshot();
+      c.status = e.target.checked ? 'on' : 'off';
+      toast(c.name + (c.status === 'on' ? ' is running' : ' is paused'), () => restore(snap));
+      renderAll();
+    };
+    const bi = r.querySelector('.budget-edit');
+    const commit = () => {
+      // "0" is falsy, so a plain || fallback silently keeps the old budget;
+      // negatives also survive a naive strip of non-digits
+      const raw = bi.value.trim().replace(/^\$/, '').replace(/,/g, '');
+      const ok = /^\d+(\.\d+)?$/.test(raw) && parseFloat(raw) >= 1;
+      if (!ok && raw !== '') toast('A daily budget has to be between $1 and $10,000');
+      const v = ok ? Math.min(10000, Math.round(parseFloat(raw))) : c.budget;
+      if (v !== c.budget) {
+        const snap = snapshot();
+        c.budget = v;
+        toast(c.name + ' is now ' + money(v) + ' a day', () => restore(snap));
+      }
+      renderAll();
+    };
+    bi.onblur = commit;
+    bi.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); bi.blur(); } };
+    r.querySelector('.chev').onclick = e => openSheet(c, e.currentTarget);
+    host.appendChild(r);
+  });
+}
+
+function openSheet(c, opener) {
+  const from = opener || document.activeElement;
+  closeSheet();
+  sheetOpener = from;
+  const m = mult();
+  const scrim = el('div', 'scrim'); scrim.onclick = closeSheet;
+  const sheet = el('div', 'sheet');
+  sheet.setAttribute('role', 'dialog');
+  sheet.setAttribute('aria-modal', 'true');
+  sheet.setAttribute('aria-label', c.name);
+  const ctr = c.impr ? c.clicks / c.impr : 0;
+  sheet.innerHTML =
+    '<div class="sheet-head"><h2>' + esc(c.name) + '</h2><button class="x-btn" aria-label="Close">✕</button></div>' +
+    '<div class="card card-pad" style="display:flex;flex-direction:column;gap:6px">' +
+      '<span class="eyebrow">Cost per patient</span>' +
+      '<div class="big-money tnum" style="font-size:38px">' + (c.leads ? money(c.spend / c.leads) : '—') + '</div>' +
+      '<p style="font-size:13px;color:var(--label-2)">' +
+        (!c.leads ? 'No patients booked in this window.'
+          : c.spend / c.leads < 120 ? 'Comfortably inside what a patient is worth. Feed this one.'
+          : 'Above your $120 target. Worth a look before adding budget.') + '</p>' +
+      '<div style="margin-top:8px">' + sparkline(c.trend, 'var(--blue)') + '</div>' +
+    '</div>' +
+    '<dl class="deflist">' +
+      '<dt>' + (state.jargon ? 'Cost' : 'Spent') + '</dt><dd>' + money(c.spend * m) + '</dd>' +
+      '<dt>' + (state.jargon ? 'Impr.' : 'Times shown') + '</dt><dd>' + Math.round(c.impr * m).toLocaleString() + '</dd>' +
+      '<dt>Clicks</dt><dd>' + Math.round(c.clicks * m).toLocaleString() + '</dd>' +
+      '<dt>' + (state.jargon ? 'CTR' : 'Click rate') + '</dt><dd>' + (ctr * 100).toFixed(1) + '%</dd>' +
+      '<dt>' + (state.jargon ? 'Avg. CPC' : 'Cost per click') + '</dt><dd>' + (c.cpc ? money2(c.cpc) : '—') + '</dd>' +
+      '<dt>' + (state.jargon ? 'Conversions' : 'Patients') + '</dt><dd>' + Math.round(c.leads * m) + '</dd>' +
+      '<dt>' + (state.jargon ? 'Search impr. share' : 'Share of searches won') + '</dt><dd>' + pct(c.share) + '</dd>' +
+      '<dt>' + (state.jargon ? 'Bid strategy' : 'How it bids') + '</dt><dd>' + esc(c.bid) + '</dd>' +
+    '</dl>' +
+    '<div class="note">' + (c.flag === 'budget'
+      ? 'You win ' + pct(c.share) + ' of the searches you could. The missing ' + pct(1 - c.share) +
+        ' is almost all budget, not bidding, so raising the daily number is the lever.'
+      : c.flag === 'waste'
+      ? 'Plenty of clicks, almost no bookings. Before adding money, read the searches that triggered it and block the shoppers.'
+      : c.flag === 'cheap'
+      ? 'People searching your own name are already sold. This is the cheapest patient you will ever buy.'
+      : 'Nothing is flagged on this one. Leave it alone and let the data build.') + '</div>';
+  sheet.querySelector('.x-btn').onclick = closeSheet;
+  document.body.append(scrim, sheet);
+  document.addEventListener('keydown', sheetKeys);
+  sheet.querySelector('.x-btn').focus();
+}
+let sheetOpener = null;
+function sheetKeys(e) {
+  if (e.key === 'Escape') { closeSheet(); return; }
+  if (e.key !== 'Tab') return;
+  const sheet = document.querySelector('.sheet');
+  if (!sheet) return;
+  const f = [...sheet.querySelectorAll('button, [href], input, select, textarea')]
+    .filter(n => !n.disabled && n.offsetParent !== null);
+  if (!f.length) return;
+  const first = f[0], last = f[f.length - 1];
+  if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+}
+function closeSheet() {
+  document.querySelectorAll('.scrim, .sheet').forEach(n => n.remove());
+  document.removeEventListener('keydown', sheetKeys);
+  if (sheetOpener && document.contains(sheetOpener)) sheetOpener.focus();
+  sheetOpener = null;
+}
+
+/* ───────────────── keywords ───────────────── */
+
+const HEALTH_WORD = s => s >= 8 ? 'Strong' : s >= 6 ? 'Fine' : s >= 4 ? 'Weak' : 'Costing you';
+
+const KW_COLS = [
+  { key:'term',   plain:'Search',    jargon:'Search',        num:false },
+  { key:'qs',     plain:'Ad health', jargon:'Quality Score', num:false },
+  { key:'clicks', plain:'Clicks',    jargon:'Clicks',        num:true },
+  { key:'cpc',    plain:'Per click', jargon:'Avg. CPC',      num:true },
+  { key:'spend',  plain:'Spent',     jargon:'Cost',          num:true },
+  { key:'leads',  plain:'Patients',  jargon:'Conv.',         num:true },
+  { key:'cpl',    plain:'Each',      jargon:'Cost / conv.',  num:true }
+];
+
+function kwVal(k, key) {
+  if (key === 'spend') return k.clicks * k.cpc;
+  // a keyword that booked nobody has no cost per patient; sort it as the worst
+  if (key === 'cpl') return k.leads ? (k.clicks * k.cpc) / k.leads : Infinity;
+  return k[key];
+}
+
+function renderKeywords() {
+  const m = mult();
+  const t = $('#kwTable');
+  const srt = state.kwSort;
+
+  t.innerHTML = '<thead><tr>' + KW_COLS.map(c => {
+    const on = srt.key === c.key;
+    return '<th class="' + (c.num ? 'num ' : '') + 'sortable" data-key="' + c.key + '" ' +
+      'aria-sort="' + (on ? (srt.dir < 0 ? 'descending' : 'ascending') : 'none') + '">' +
+      '<span class="th-in">' + esc(state.jargon ? c.jargon : c.plain) +
+      '<i class="sort-caret' + (on ? ' on' : '') + '">' + (on && srt.dir > 0 ? '▲' : '▼') + '</i></span></th>';
+  }).join('') + '<th></th></tr></thead><tbody></tbody>';
+
+  t.querySelectorAll('th.sortable').forEach(th => {
+    th.onclick = () => {
+      const key = th.dataset.key;
+      state.kwSort = srt.key === key
+        ? { key, dir: -srt.dir }
+        : { key, dir: key === 'term' ? 1 : -1 };
+      renderKeywords();
+    };
+  });
+
+  const body = t.querySelector('tbody');
+  const sorted = [...keywords].sort((a, b) => {
+    const x = kwVal(a, srt.key), y = kwVal(b, srt.key);
+    if (typeof x === 'string') return srt.dir * x.localeCompare(y);
+    return srt.dir * (x - y);
+  });
+
+  if (!sorted.length) {
+    body.innerHTML = '<tr><td colspan="' + (KW_COLS.length + 1) + '">' +
+      '<div class="empty"><h3>Every search is blocked</h3>' +
+      '<p>Nothing can trigger your ads now, so they have stopped showing. Undo the last block, or add searches when you build a campaign.</p>' +
+      '</div></td></tr>';
+    return;
+  }
+
+  sorted.forEach(k => {
+    const spend = k.clicks * k.cpc * m;
+    const leads = k.leads * m;
+    const bad = k.leads === 0 || spend / Math.max(leads, 0.5) > 200;
+    const tr = el('tr');
+    tr.innerHTML =
+      '<td><div class="kw-term">' + esc(k.term) + '</div>' +
+        '<div class="kw-match">' + (k.match === 'exact' ? '[exact]' : k.match === 'phrase' ? '"phrase"' : 'broad') + ' match</div></td>' +
+      '<td><div class="health">' + ring(k.qs) +
+        '<div class="health-txt"><b>' + k.qs + '/10 · ' + HEALTH_WORD(k.qs) + '</b>' +
+        esc(k.cmp[0] === 'Below average' ? 'People scroll past it' : 'Clicks as expected') + '</div></div></td>' +
+      '<td class="num">' + Math.round(k.clicks * m) + '</td>' +
+      '<td class="num">' + money2(k.cpc) + '</td>' +
+      '<td class="num">' + money(spend) + '</td>' +
+      '<td class="num">' + Math.round(leads) + '</td>' +
+      '<td class="num">' + (k.leads ? money(spend / leads) : '<span style="color:var(--red);font-weight:600">nothing</span>') + '</td>' +
+      '<td class="num">' + (bad ? '<button class="btn btn-ghost" style="padding:5px 13px;font-size:13px">Block it</button>' : '') + '</td>';
+    const b = tr.querySelector('button');
+    if (b) b.onclick = () => {
+      const snap = snapshot();
+      keywords = keywords.filter(x => x.term !== k.term);
+      toast('“' + k.term + '” blocked. No more clicks from it.', () => restore(snap));
+      renderKeywords();
+    };
+    body.appendChild(tr);
+  });
+}
+
+function renderGlossary() {
+  const t = $('#glossTable');
+  t.innerHTML = '<thead><tr><th>What this app says</th><th>What Google says</th><th>What it means</th></tr></thead><tbody>' +
+    GLOSSARY.map(([p, j, d]) =>
+      '<tr><td><b style="font-weight:600">' + esc(p) + '</b></td>' +
+      '<td style="font-family:var(--mono);font-size:13px;color:var(--label-2)">' + esc(j) + '</td>' +
+      '<td style="color:var(--label-2);max-width:46ch">' + esc(d) + '</td></tr>').join('') +
+    '</tbody>';
+}
+
+/* ───────────────── ad editor ───────────────── */
+
+let headlines = ['Same-Day Emergency Dentist', 'Portland Dentist Open Today', 'Tooth Pain? Seen In 2 Hours', '', ''];
+let descs = ['Walk-in slots held every afternoon for emergencies. Call and we will fit you in today.', 'Most insurance taken. Clear pricing before we start any work.', '', ''];
+const H_MAX = 30, D_MAX = 90, S_MAX = 25;
+let sitelinks = ['Book Online', 'Emergency Hours', 'What It Costs', 'Insurance We Take'];
+let callouts = ['Open Saturdays', 'Free parking', 'Sedation available', 'Payment plans'];
+
+function renderAssets() {
+  const sl = $('#siteLinkList'); sl.innerHTML = '';
+  sitelinks.forEach((s, i) => {
+    const row = el('div', 'asset-line');
+    row.innerHTML = '<input class="field" maxlength="40" value="' + esc(s) + '" placeholder="Sitelink ' + (i + 1) + '" aria-label="Sitelink ' + (i + 1) + '">' +
+      '<span class="counter tnum">' + s.length + '/' + S_MAX + '</span>';
+    const inp = row.querySelector('input'), cnt = row.querySelector('.counter');
+    inp.oninput = () => {
+      sitelinks[i] = inp.value;
+      cnt.textContent = inp.value.length + '/' + S_MAX;
+      cnt.classList.toggle('over', inp.value.length > S_MAX);
+      scoreAd(); drawPreview();
+    };
+    if (s.length > S_MAX) cnt.classList.add('over');
+    sl.appendChild(row);
+  });
+  if (sitelinks.length < 6) {
+    const add = el('button', 'chip-add', '+ Another sitelink');
+    add.onclick = () => { sitelinks.push(''); renderAssets(); };
+    sl.appendChild(add);
+  }
+
+  const cc = $('#calloutChips'); cc.innerHTML = '';
+  callouts.forEach((c, i) => {
+    const chip = el('div', 'chip', '<b>' + esc(c) + '</b>');
+    const x = el('button', 'chip-x', '✕');
+    x.setAttribute('aria-label', 'Remove ' + c);
+    x.onclick = () => { callouts.splice(i, 1); renderAssets(); scoreAd(); drawPreview(); };
+    chip.appendChild(x); cc.appendChild(chip);
+  });
+  const addC = el('button', 'chip-add', '+ Add a callout');
+  addC.onclick = () => {
+    callouts.push('New callout');
+    renderAssets(); scoreAd(); drawPreview();
+    const chips = $('#calloutChips').querySelectorAll('.chip b');
+    if (chips.length) makeEditable(chips[chips.length - 1], callouts.length - 1);
+  };
+  cc.appendChild(addC);
+}
+
+/* callouts are short enough to edit in place rather than in a field */
+function makeEditable(node, i) {
+  node.contentEditable = 'true';
+  node.focus();
+  const sel = document.getSelection();
+  if (sel && sel.selectAllChildren) sel.selectAllChildren(node);
+  node.onblur = () => {
+    callouts[i] = node.textContent.trim().slice(0, 25) || 'Callout';
+    node.contentEditable = 'false';
+    renderAssets(); drawPreview();
+  };
+  node.onkeydown = e => { if (e.key === 'Enter') { e.preventDefault(); node.blur(); } };
+}
+
+function renderAdEditor() {
+  const hl = $('#headlineList'); hl.innerHTML = '';
+  headlines.forEach((h, i) => {
+    const row = el('div', 'asset-line');
+    row.innerHTML = '<input class="field" maxlength="60" value="' + esc(h) + '" placeholder="Headline ' + (i + 1) + '" aria-label="Headline ' + (i + 1) + '">' +
+      '<span class="counter tnum">' + h.length + '/' + H_MAX + '</span>';
+    const inp = row.querySelector('input'), cnt = row.querySelector('.counter');
+    inp.oninput = () => {
+      headlines[i] = inp.value;
+      cnt.textContent = inp.value.length + '/' + H_MAX;
+      cnt.classList.toggle('over', inp.value.length > H_MAX);
+      scoreAd(); drawPreview();
+    };
+    if (h.length > H_MAX) cnt.classList.add('over');
+    hl.appendChild(row);
+  });
+  const addH = el('button', 'chip-add', '+ Another headline');
+  addH.onclick = () => { if (headlines.length < 15) { headlines.push(''); renderAdEditor(); } };
+  hl.appendChild(addH);
+
+  const dl = $('#descList'); dl.innerHTML = '';
+  descs.forEach((d, i) => {
+    const row = el('div', 'asset-line');
+    row.innerHTML = '<textarea class="field" rows="2" placeholder="Description ' + (i + 1) + '" aria-label="Description ' + (i + 1) + '">' + esc(d) + '</textarea>' +
+      '<span class="counter tnum">' + d.length + '/' + D_MAX + '</span>';
+    const inp = row.querySelector('textarea'), cnt = row.querySelector('.counter');
+    inp.oninput = () => {
+      descs[i] = inp.value;
+      cnt.textContent = inp.value.length + '/' + D_MAX;
+      cnt.classList.toggle('over', inp.value.length > D_MAX);
+      scoreAd(); drawPreview();
+    };
+    if (d.length > D_MAX) cnt.classList.add('over');
+    dl.appendChild(row);
+  });
+
+  renderAssets(); scoreAd(); drawPreview();
+}
+
+function scoreAd() {
+  const h = headlines.filter(x => x.trim() && x.length <= H_MAX);
+  const d = descs.filter(x => x.trim() && x.length <= D_MAX);
+  let score = 0;
+  if (h.length >= 3) score++;
+  if (h.length >= 5) score++;
+  if (d.length >= 2) score++;
+  if (h.length >= 8 && d.length >= 3) score++;
+  const words = ['Poor', 'Poor', 'Average', 'Good', 'Excellent'];
+  const cls = ['on-poor', 'on-poor', 'on-avg', 'on-good', 'on-exc'];
+  $('#strengthWord').textContent = words[score];
+  $('#strengthBars').querySelectorAll('i').forEach((b, i) => {
+    b.className = i < score ? cls[score] : '';
+  });
+  const over = [...headlines, ...descs].some((x, i) => x.length > (i < headlines.length ? H_MAX : D_MAX));
+  $('#strengthWhy').textContent =
+    over ? 'Something is over the character limit. Google will refuse to show it.'
+    : h.length < 5 ? 'Write ' + (5 - h.length) + ' more headline' + (5 - h.length > 1 ? 's' : '') + '. Google needs 5 to have anything to test.'
+    : d.length < 3 ? 'One more description and Google has enough variety to find a winner.'
+    : sitelinks.filter(s => s.trim()).length < 4
+      ? 'Headlines are fine. Add ' + (4 - sitelinks.filter(s => s.trim()).length) +
+        ' more sitelink' + (4 - sitelinks.filter(s => s.trim()).length > 1 ? 's' : '') +
+        ' — four is where Google starts showing them as a block, which makes the ad much taller.'
+    : 'Enough for Google to test properly. Leave it running three weeks before judging it.';
+}
+
+let combo = [0, 1, 0];
+function rollPreview() {
+  const h = headlines.map((x, i) => i).filter(i => headlines[i].trim());
+  const d = descs.map((x, i) => i).filter(i => descs[i].trim());
+  if (h.length) { combo[0] = h[Math.floor(Math.random() * h.length)]; combo[1] = h[Math.floor(Math.random() * h.length)]; }
+  if (d.length) combo[2] = d[Math.floor(Math.random() * d.length)];
+  drawPreview();
+}
+function drawPreview() {
+  const h = headlines.filter(x => x.trim());
+  const d = descs.filter(x => x.trim());
+  const a = headlines[combo[0]] && headlines[combo[0]].trim() ? headlines[combo[0]] : (h[0] || 'Your headline');
+  const b = headlines[combo[1]] && headlines[combo[1]].trim() && combo[1] !== combo[0] ? headlines[combo[1]] : (h[1] || '');
+  $('#prevHead').textContent = [a, b].filter(Boolean).join(' | ');
+  $('#prevDesc').textContent = (descs[combo[2]] && descs[combo[2]].trim()) ? descs[combo[2]] : (d[0] || 'Your description shows here.');
+
+  const co = callouts.filter(x => x.trim());
+  $('#prevCallouts').textContent = co.length ? co.join(' · ') : '';
+  const sl = sitelinks.filter(x => x.trim());
+  // Google shows sitelinks as a two-column block once there are four of them
+  $('#prevSitelinks').innerHTML = sl.length >= 4
+    ? sl.slice(0, 4).map(s => '<span>' + esc(s) + '</span>').join('')
+    : sl.map(s => '<span>' + esc(s) + '</span>').join('');
+  $('#prevSitelinks').style.gridTemplateColumns = sl.length >= 4 ? '1fr 1fr' : '1fr';
+}
+
+/* ───────────────── builder ───────────────── */
+
+const GOALS = [
+  { id:'calls', b:'Phone calls', s:'Google bids for the people most likely to call. Needs call tracking on.', strat:'Maximize conversions' },
+  { id:'forms', b:'Form fills', s:'Same bidding, counted when someone submits a booking form.', strat:'Maximize conversions' },
+  { id:'visits', b:'Website visits', s:'Cheapest clicks it can find. Good for a brand-new site with no data.', strat:'Maximize clicks' },
+  { id:'sales', b:'Online sales', s:'Bids toward a return on every dollar. Needs revenue sent back to Google.', strat:'Target ROAS' }
+];
+const SEED_KWS = [
+  'emergency dentist near me', 'dentist open now', 'same day dentist portland',
+  'tooth pain dentist', 'walk in dentist portland me', 'urgent dental care'
+];
+let bState = { goal:'calls', kws:[...SEED_KWS], negs:['free', 'jobs', 'diy', 'school'] };
+
+function renderBuilder() {
+  const g = $('#goalChoices'); g.innerHTML = '';
+  GOALS.forEach(x => {
+    const b = el('button', 'choice', '<b>' + esc(x.b) + '</b><small>' + esc(x.s) + '</small>');
+    b.setAttribute('aria-pressed', String(x.id === bState.goal));
+    b.onclick = () => { bState.goal = x.id; renderBuilder(); };
+    g.appendChild(b);
+  });
+
+  const kc = $('#kwChips'); kc.innerHTML = '';
+  if (!bState.kws.length) {
+    kc.appendChild(el('span', null, '<span style="font-size:13px;color:var(--orange)">No searches left. Add at least one or the campaign can never show.</span>'));
+  }
+  bState.kws.forEach((k, i) => {
+    const c = el('div', 'chip', '<b>' + esc(k) + '</b>');
+    const x = el('button', 'chip-x', '✕');
+    x.setAttribute('aria-label', 'Remove ' + k);
+    x.onclick = () => { bState.kws.splice(i, 1); renderBuilder(); };
+    c.appendChild(x); kc.appendChild(c);
+  });
+  const add = el('button', 'chip-add', '+ Add a search');
+  add.onclick = () => {
+    const v = ($('#bWhat').value.toLowerCase().split(/\s+/).slice(0, 3).join(' ') || 'new search');
+    bState.kws.push(v); renderBuilder();
+  };
+  kc.appendChild(add);
+
+  const nc = $('#negChips'); nc.innerHTML = '<span style="font-size:12.5px;color:var(--label-2);align-self:center;margin-right:4px">Never show for:</span>';
+  bState.negs.forEach((k, i) => {
+    const c = el('div', 'chip', '<b style="text-decoration:line-through;opacity:.7">' + esc(k) + '</b>');
+    const x = el('button', 'chip-x', '✕');
+    x.setAttribute('aria-label', 'Unblock ' + k);
+    x.onclick = () => { bState.negs.splice(i, 1); renderBuilder(); };
+    c.appendChild(x); nc.appendChild(c);
+  });
+
+  updateForecast();
+}
+
+function updateForecast() {
+  const budget = +$('#bBudget').value;
+  const radius = +$('#bRadius').value;
+  $('#bBudgetVal').textContent = money(budget);
+  $('#bMonthly').textContent = money(budget * 30.4) + ' a month';
+  $('#bRadiusVal').textContent = radius + (radius === 1 ? ' mile' : ' miles');
+
+  // wider radius => cheaper, less qualified clicks; bigger budget => more share, slightly higher cpc
+  const baseCpc = 3.9 - Math.min(radius, 40) * 0.025;
+  const cpc = baseCpc * (1 + Math.min(budget, 250) / 1400);
+  const clicks = (budget * 30.4) / cpc;
+  const cvr = 0.105 - Math.min(radius, 60) * 0.0008 + (bState.goal === 'visits' ? -0.03 : 0);
+  const leads = clicks * Math.max(cvr, 0.015);
+  const demand = 1420 * (1 + radius / 55);
+  const share = Math.min(0.92, (clicks * 2.6) / demand);
+
+  $('#fcClicks').textContent = Math.round(clicks).toLocaleString();
+  $('#fcCpc').textContent = money2(cpc);
+  $('#fcLeads').textContent = Math.round(leads);
+  $('#fcCpl').textContent = money(budget * 30.4 / Math.max(leads, 1));
+  $('#fcShare').textContent = pct(share);
+  $('#fcNote').textContent = share > 0.8
+    ? 'You would show for nearly every one of these searches. More budget past here buys very little.'
+    : share < 0.3
+    ? 'At this budget you miss ' + pct(1 - share) + ' of the searches. Either raise it or tighten the radius so the money concentrates.'
+    : 'A reasonable starting point. Modelled on Portland search volume for these terms; real numbers will differ.';
+
+  const ready = !!$('#bWhat').value.trim() && bState.kws.length > 0;
+  $('#launchBtn').disabled = !ready;
+  $('#launchHint').textContent = ready
+    ? 'Adds it to your list here. Nothing reaches Google.'
+    : 'Say what you are advertising and keep at least one search.';
+
+  const q = bState.kws[0] || 'your search';
+  $('#bSerpUrl').textContent = 'google.com/search?q=' + q.replace(/\s+/g, '+');
+  $('#bPrevUrl').textContent = $('#bUrl').value || 'yoursite.com';
+  const what = $('#bWhat').value.trim();
+  $('#bPrevHead').textContent = (what.split(/[,.]/)[0] || 'Your offer').slice(0, 30) +
+    ' | ' + ($('#bGeo').value || 'Near You');
+  $('#bPrevDesc').textContent = what
+    ? what.charAt(0).toUpperCase() + what.slice(1) + '. Call today and we will fit you in.'
+    : 'Your description shows here.';
+}
+
+function launch() {
+  const budget = +$('#bBudget').value;
+  const phrase = ($('#bWhat').value.split(/[,.]/)[0] || 'New campaign').trim();
+  // cut on a word boundary so the name never ends mid-word before the suffix
+  let short = phrase;
+  if (phrase.length > 34) {
+    short = phrase.slice(0, 34);
+    const sp = short.lastIndexOf(' ');
+    if (sp > 18) short = short.slice(0, sp);
+  }
+  const name = short.trim() + ' — Search';
+  campaigns.unshift({
+    id: 'n' + Date.now(), name, type: 'Search',
+    bid: GOALS.find(g => g.id === bState.goal).strat,
+    budget, status: 'on', flag: null,
+    spend: 0, clicks: 0, impr: 0, leads: 0, cpc: 0, share: 0,
+    trend: Array(14).fill(0)
+  });
+  toast('Launched at ' + money(budget) + ' a day. Give it 14 days.');
+  renderAll();
+  go('campaigns');
+}
+
+/* ───────────────── boot ───────────────── */
+
+function renderAll() {
+  series = buildSeries();
+  renderHero();
+  renderKpis();
+  renderTrend();
+  renderFixes();
+  campaignRows('#todayCampaigns', 4);
+  campaignRows('#campaignList');
+  if (state.view === 'keywords') renderKeywords();
+  if (state.view === 'words') renderGlossary();
+  renderBuilder();
+  applyWording();
+  updateBadge();
+}
+
+(function init() {
+  const r = store('range'); if (r && RANGES.some(x => x.id === r)) state.range = r;
+  const j = store('jargon'); if (typeof j === 'boolean') state.jargon = j;
+  const d = store('dismissed'); if (Array.isArray(d)) state.dismissed = d;
+
+  const hash = (location.hash || '').replace('#', '');
+  if (VIEWS.some(v => v.id === hash)) state.view = hash;
+
+  $('#jargonSw').checked = state.jargon;
+  $('#jargonSw').onchange = e => {
+    state.jargon = e.target.checked; store('jargon', state.jargon);
+    renderAll();
+    toast(state.jargon ? "Showing Google's wording" : 'Showing plain English');
+  };
+
+  $('#menuBtn').onclick = () => setRail(!$('#rail').classList.contains('open'));
+  $('#railScrim').onclick = () => setRail(false);
+  document.addEventListener('click', closeHints);
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    closeHints();
+    setRail(false);
+  });
+  $('#campSearch').oninput = e => { state.campQuery = e.target.value; campaignRows('#campaignList'); };
+  $('#bBudget').oninput = updateForecast;
+  $('#bRadius').oninput = updateForecast;
+  ['bWhat', 'bUrl', 'bGeo'].forEach(id => { $('#' + id).oninput = updateForecast; });
+  $('#launchBtn').onclick = launch;
+
+  renderRange();
+  renderNav();
+  renderAll();
+  renderAdEditor();
+  go(state.view);
+})();
+</script>
