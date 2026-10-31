@@ -165,13 +165,6 @@ client build closes.
 - **Ad Strength is an approximation.** It counts distinct headlines and
   descriptions the way Google broadly does, without Google's model behind it.
 
-## Origin
-
-Built with Claude Code, and first published as a Claude artifact. The file in this
-repository carries its own document head: the artifact host supplied the doctype,
-charset and viewport, so the extracted copy needed them added before it would
-render correctly when served normally.
-
 ## Licence
 
 No licence is granted. This repository is published so the architecture can be
