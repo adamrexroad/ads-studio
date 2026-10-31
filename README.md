@@ -4,14 +4,18 @@ A Google Ads console rebuilt in plain English and Apple's design language. It
 answers the one question the real interface buries, which is what a booked
 customer costs, and it says it in the words the person paying the bill would use.
 
+> **This is baseline architecture and layout for much larger client software
+> builds.** It is the starting point those builds are grown from, not a
+> finished product.
+
 ![The Today page](docs/screenshots/today.jpg)
 
 ## What this repository is
 
-Baseline architecture. The derived-metrics model, the plain-English layer, the
-recommendation engine and the view structure here are the foundation that much
-larger client software gets built on top of. What is in this repository is the
-layer that does not change from one build to the next.
+Baseline architecture and layout. The derived-metrics model, the plain-English
+layer, the recommendation engine and the view structure here are the foundation
+that much larger client software gets built on top of. What is in this repository
+is the layer that does not change from one build to the next.
 
 A client build keeps this core and adds what that account needs: a real Google
 Ads API connection behind the data, OAuth and account selection, write-back for
