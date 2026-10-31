@@ -4,14 +4,14 @@ A simpler, more usable Google Ads console. It reads account performance and
 turns it into specific suggested decisions, each one priced in money per month,
 instead of leaving the operator to work them out from forty separate metrics.
 
-> **This is baseline architecture and layout for much larger client software
-> builds.** It is the starting point those builds are grown from, not a finished
-> product.
->
-> **The ad strategies and the analytics that produce the suggestions are not in
-> this repository.** What is here is the structure that presents them and the
-> model for how a decision is stated. The logic that decides which decisions are
-> worth surfacing belongs to a client build.
+**This is baseline architecture and layout for much larger client software
+builds.** It is the starting point those builds are grown from, not a finished
+product.
+
+**The ad strategies and the analytics that produce the suggestions are not in
+this repository.** What is here is the structure that presents them and the
+model for how a decision is stated. The logic that decides which decisions are
+worth surfacing belongs to a client build.
 
 ![The Today page](docs/screenshots/today.jpg)
 
