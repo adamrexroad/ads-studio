@@ -94,9 +94,17 @@ a count of how many distinct headlines it has to test with.
 
 ## Architecture
 
-One HTML file. No build step, no package manager, no framework, no CDN script and
-no network call. The entire application is `index.html`: design tokens, component
-CSS, markup for six views, then the script.
+One HTML file, and nothing else. No build step, no package manager, no framework,
+no SDK, no analytics, no fonts or scripts from a CDN, and no network request of
+any kind. The entire application is `index.html`: design tokens, component CSS,
+markup for six views, then the script.
+
+Measured rather than asserted. Loading the page issues exactly two requests, the
+document itself and an inline `data:` URI. Nothing reaches a third party, so
+opening it sends no one a record that you did.
+
+The type stack is system fonts only, so it renders as the local platform's
+interface font with nothing to download.
 
 ### Everything on Today derives from one series
 
