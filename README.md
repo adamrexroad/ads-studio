@@ -160,8 +160,11 @@ client build closes.
   preference and dismissed recommendations persist. A reload resets the rest, by
   design.
 - **No tests.** Verification has been done by driving the page in a browser and
-  asserting against the DOM. The checks worth repeating after a change are listed
-  in `CLAUDE.md`.
+  asserting against the DOM: no page-level horizontal scroll at any width, no
+  `NaN` or `undefined` in any visible text across all six views and all three
+  date ranges, both empty extremes (every campaign paused, which takes the
+  monthly ceiling to zero, and every keyword blocked), and junk in the budget
+  field.
 - **Ad Strength is an approximation.** It counts distinct headlines and
   descriptions the way Google broadly does, without Google's model behind it.
 
