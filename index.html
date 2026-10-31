@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="description" content="A Google Ads console rebuilt in plain English and Apple’s design language. Single file, no build step, example data only.">
+<meta name="description" content="A simpler Google Ads console that turns account performance into specific suggested decisions, each priced in money per month. Single file, no build step, example data only.">
 <meta name="color-scheme" content="light dark">
 <title>Ads Studio</title>
 <meta name="claude:viewport-fit-sides" content="cover">
@@ -691,7 +691,7 @@
       </div>
       <div>
         <div class="brand-name">Ads Studio</div>
-        <div class="brand-sub">Google Ads, in plain English</div>
+        <div class="brand-sub">Data-driven decisions</div>
       </div>
     </div>
 
@@ -2052,7 +2052,7 @@ function renderAll() {
   $('#jargonSw').onchange = e => {
     state.jargon = e.target.checked; store('jargon', state.jargon);
     renderAll();
-    toast(state.jargon ? "Showing Google's wording" : 'Showing plain English');
+    toast(state.jargon ? "Showing Google's wording" : 'Showing simple wording');
   };
 
   $('#menuBtn').onclick = () => setRail(!$('#rail').classList.contains('open'));
